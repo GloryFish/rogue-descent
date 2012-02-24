@@ -12,7 +12,6 @@ require 'vector'
 Camera = class('Camera')
 
 function Camera:initialize()
-  self.offset = vector(0, 0)
   self.bounds = {
     top = 0,
     right = love.graphics.getWidth(),
@@ -21,8 +20,11 @@ function Camera:initialize()
   }
   self.useBounds = false
   self.position = vector(love.graphics.getWidth() / 2, love.graphics.getHeight() / 2)
+  self.offset = self.position
   self.focus = vector(love.graphics.getWidth() / 2, love.graphics.getHeight() / 2)
   self.deadzone = 100
+  
+  self.zoom = 1
 end
 
 
@@ -62,8 +64,15 @@ end
 function Camera:apply()
   love.graphics.push()
 
-  -- Translation
+  -- love.graphics.translate(-love.graphics.getWidth() / 2 * self.zoom, -love.graphics.getHeight() / 2 * self.zoom)
+  -- love.graphics.scale(self.zoom)
+  -- love.graphics.translate(love.graphics.getWidth() / 2 * self.zoom, love.graphics.getHeight() / 2 * self.zoom)
+  -- 
   love.graphics.translate(-self.offset.x, -self.offset.y)
+
+  -- 
+  -- love.graphics.translate(love.graphics.getWidth() / 2, love.graphics.getHeight() / 2)
+  
 end
 
 function Camera:unapply()

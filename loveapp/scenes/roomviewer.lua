@@ -29,7 +29,12 @@ function scene.keypressed(self, key, unicode)
   if key == 'escape' then
     self:quit()
   end
-  
+
+  if key == 'c' then
+    RoomBuilder.totalRooms = 0
+    self.room = RoomBuilder:startingRoom()
+  end
+
   if key == 'l' then
     self:addRoom('left')
   end
@@ -38,19 +43,24 @@ function scene.keypressed(self, key, unicode)
     self:addRoom('right')
   end
 
-  if key == 'up' then
-    
-    if self.room.parent ~= nil then
-      self.room = self.room.parent
+  if key == 'kp7' then
+    if self.room.parents['left'] ~= nil then
+      self.room = self.room.parents['left']
+    end
+  end
+
+  if key == 'kp9' then
+    if self.room.parents['right'] ~= nil then
+      self.room = self.room.parents['right']
     end
   end
   
-  if key == 'left' and self.room.children.left ~= nil then
-    self.room = self.room.children.left
+  if key == 'kp1' and self.room.children['left'] ~= nil then
+    self.room = self.room.children['left']
   end
 
-  if key == 'right' and self.room.children.right ~= nil then
-    self.room = self.room.children.right
+  if key == 'kp3' and self.room.children['right'] ~= nil then
+    self.room = self.room.children['right']
   end
   
 end
@@ -110,11 +120,12 @@ function scene:drawRooms(room, level)
   table.insert(self.drawnRooms, room)
 
   -- draw children
-  self:drawRooms(room.children.left, level)
-  self:drawRooms(room.children.right, level)
+  self:drawRooms(room.children['left'], level)
+  self:drawRooms(room.children['right'], level)
   
   -- draw parent
-  self:drawRooms(room.parent, level)
+  self:drawRooms(room.parents['left'], level)
+  self:drawRooms(room.parents['right'], level)
 end
 
 function scene.quit(self)
