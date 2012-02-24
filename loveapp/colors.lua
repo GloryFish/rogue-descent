@@ -30,6 +30,11 @@ function Color:inverse()
 	return Color(255 - self.r, 255 - self.g, 255 - self.b, 255 - self.a)
 end
 
+function Color:random()
+	return Color(math.random(255), math.random(255), math.random(255))
+end
+
+
 colors = {
   red = Color(255, 0, 0),
   green = Color(0, 255, 0),

@@ -19,10 +19,10 @@ function Camera:initialize()
     bottom = love.graphics.getHeight(),
     left = 0
   }
+  self.useBounds = false
   self.position = vector(love.graphics.getWidth() / 2, love.graphics.getHeight() / 2)
   self.focus = vector(love.graphics.getWidth() / 2, love.graphics.getHeight() / 2)
   self.deadzone = 100
-  self.scale = 1
 end
 
 
@@ -33,26 +33,39 @@ function Camera:update(dt)
   end
 
   -- Clamp camera to bounds
-  local halfWidth = love.graphics.getWidth() / 2
-  local halfHeight = love.graphics.getHeight() / 2
+  if self.useBounds then
+    local halfWidth = love.graphics.getWidth() / 2
+    local halfHeight = love.graphics.getHeight() / 2
 
-  if self.position.x - halfWidth < self.bounds.left then
-    self.position.x = self.bounds.left + halfWidth
-  end
+    if self.position.x - halfWidth < self.bounds.left then
+      self.position.x = self.bounds.left + halfWidth
+    end
 
-  if self.position.x + halfWidth > self.bounds.right then
-    self.position.x = self.bounds.right - halfWidth
-  end
+    if self.position.x + halfWidth > self.bounds.right then
+      self.position.x = self.bounds.right - halfWidth
+    end
 
-  if self.position.y - halfHeight < self.bounds.top then
-    self.position.y = self.bounds.top + halfHeight
-  end
+    if self.position.y - halfHeight < self.bounds.top then
+      self.position.y = self.bounds.top + halfHeight
+    end
 
-  if self.position.y + halfHeight > self.bounds.bottom then
-    self.position.y = self.bounds.bottom - halfHeight
+    if self.position.y + halfHeight > self.bounds.bottom then
+      self.position.y = self.bounds.bottom - halfHeight
+    end
   end
 
   -- Update the offset
   self.offset = vector(math.floor(self.position.x - love.graphics.getWidth() / 2),
                        math.floor(self.position.y - love.graphics.getHeight() / 2))
+end
+
+function Camera:apply()
+  love.graphics.push()
+
+  -- Translation
+  love.graphics.translate(-self.offset.x, -self.offset.y)
+end
+
+function Camera:unapply()
+  love.graphics.pop()
 end
