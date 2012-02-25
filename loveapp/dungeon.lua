@@ -18,7 +18,7 @@ end
 
 function Dungeon:reset()
   self.rooms = {}
-  self.roomSize = vector(600, 250)
+  self.roomSize = vector(800, 400)
   
   local startingRoom = Room(1, 1)
   startingRoom.size = self.roomSize
@@ -101,25 +101,76 @@ function Dungeon:goToLocationFromRoom(location, room)
 end
 
 function Dungeon:update(dt)
-  self.currentRoom:update(dt)
+  local neighbors = self:getNeighborsForRoom(self.currentRoom)
+  for index, room in pairs(neighbors) do
+    room:update(dt)
+  end
+  self.currentRoom:draw(dt)
 end
 
--- function Dungeon:draw
+function Dungeon:getNeighborsForRoom(room)
+  local neighbors = {}
+  local level = nil
+  local index = nil
+  local id = nil
+  
+  -- Upper left
+  level = room.level - 1
+  index = room.index - 1
+  id = self:idForLevelAndIndex(level, index)
+  if self.rooms[id] ~= nil then
+    table.insert(neighbors, self.rooms[id])
+  end
+
+  -- Upper right
+  level = room.level - 1
+  index = room.index
+  id = self:idForLevelAndIndex(level, index)
+  if self.rooms[id] ~= nil then
+    table.insert(neighbors, self.rooms[id])
+  end
+  
+  -- left
+  level = room.level
+  index = room.index - 1
+  id = self:idForLevelAndIndex(level, index)
+  if self.rooms[id] ~= nil then
+    table.insert(neighbors, self.rooms[id])
+  end
+  
+  -- right
+  level = room.level
+  index = room.index + 1
+  id = self:idForLevelAndIndex(level, index)
+  if self.rooms[id] ~= nil then
+    table.insert(neighbors, self.rooms[id])
+  end
+  
+  -- lower left
+  level = room.level + 1
+  index = room.index
+  id = self:idForLevelAndIndex(level, index)
+  if self.rooms[id] ~= nil then
+    table.insert(neighbors, self.rooms[id])
+  end
+  
+  -- lower right
+  level = room.level + 1
+  index = room.index + 1
+  id = self:idForLevelAndIndex(level, index)
+  if self.rooms[id] ~= nil then
+    table.insert(neighbors, self.rooms[id])
+  end
+  
+  return neighbors
+end
 
 function Dungeon:draw()
   local level = self.currentRoom.level
 
-  for index, room in pairs(self.rooms) do
+  local neighbors = self:getNeighborsForRoom(self.currentRoom)
+  for index, room in pairs(neighbors) do
     room:draw()
   end
-  
-  -- Draw all rooms at this level, the level above and the level below
-  -- for curLevel = level - 1, level + 1 do
-  --   for index = 1, curLevel do
-  --     local id = self:idForLevelAndIndex(level, index)
-  --     if self.rooms[id] ~= nil then
-  --       self.rooms[id]:draw()
-  --     end
-  --   end
-  -- end
+  self.currentRoom:draw()
 end
