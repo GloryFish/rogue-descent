@@ -11,28 +11,43 @@ require 'vector'
 require 'rectangle'
 require 'colors'
 require 'utility'
+require 'notifier'
+require 'rectangle'
+require 'notifier'
 
 Door = class('Door')
 
-doortypes = {
-  RED = 1,
-  GREEN = 2,
-  BLUE = 3,
-}
-
-function Door:initialize(doortype)
-  assert(in_table(doortype, doortypes), string.format('Invalid doortype: %s', doortype))
+function Door:initialize(position, room, destination)
+  assert(position ~= nil, 'Door initilized without position')
+  assert(position ~= nil, 'Door initilized without room')
   
-  self.position = vector(0, 0)
-  self.type = doortype
+  self.rectangle = Rectangle(position, vector(40, 40))
+  self.room = room
+  self.destination = destination
+  self.locked = true
+  
+  Notifier:listenForMessage('mouse_up', self)
 end
 
+function Door:receiveMessage(message, position)
+  if message == 'mouse_up' then
+    if self.rectangle:contains(position) then
+      
+      self.locked = false
+      print('got message mouse_up')
+      Notifier:postMessage('location_selected', self.destination)
+    end
+  end
+end
 
 function Door:update(dt)
 end
 
-
 function Door:draw()
   colors.white:set()
-  love.graphics.rectangle('line', self.position.x, self.position.y, self.size.x, self.size.y)
+  local mode = 'line'
+  if self.locked then
+    mode = 'fill'
+  end
+  love.graphics.rectangle(mode, self.rectangle.position.x, self.rectangle.position.y, self.rectangle.size.x, self.rectangle.size.y)
 end

@@ -17,32 +17,32 @@ scenes.base = Gamestate.new()
 
 local scene = scenes.base
 
-function scene.enter(self, pre)
+function scene:enter(pre)
 
 end
 
-function scene.keypressed(self, key, unicode)
+function scene:keypressed(key, unicode)
   if key == 'escape' then
     self:quit()
   end
 end
 
-function scene.mousepressed(self, x, y, button)
+function scene:mousepressed(x, y, button)
 end
 
-function scene.mousereleased(self, x, y, button)
+function scene:mousereleased(x, y, button)
 end
 
-function scene.update(self, dt)
+function scene:update(dt)
   if love.mouse.isDown('l') then
   end
 end
 
-function scene.draw(self)
+function scene:draw()
 end
 
-function scene.quit(self)
+function scene:quit()
 end
 
-function scene.leave(self)
+function scene:leave()
 end

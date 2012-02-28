@@ -27,6 +27,13 @@ function Camera:initialize()
   self.zoom = 1
 end
 
+function Camera:worldToScreen(position)
+  return position - self.offset
+end
+
+function Camera:screenToWorld(position)
+  return position + self.offset
+end
 
 function Camera:update(dt)
   -- Move the camera if we are outside the deadzone

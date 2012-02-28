@@ -10,16 +10,26 @@ require 'middleclass'
 require 'vector'
 require 'rectangle'
 require 'colors'
+require 'door'
 
 Room = class('Room')
 
-function Room:initialize(level, index)
-  self.position = vector(0, 0)
+function Room:initialize(level, index, position)
+  assert(level ~= nil, 'Room intialized without level')
+  assert(index ~= nil, 'Room intialized without index')
+  assert(position ~= nil, 'Room intialized without position')
+  
+  self.position = position
   self.size = vector(0, 0)
 
   self.level = level
   self.index = index
   self.id = self:getId()
+
+  self.doors = {
+    left = Door(vector(self.position.x + 75, self.position.y + 300)),
+    right = Door(vector(self.position.x + 625, self.position.y + 300)),
+  }
 
   self.color = colors.white
 end
@@ -39,6 +49,10 @@ end
 function Room:draw()
   self.color:set()
   love.graphics.rectangle('line', self.position.x, self.position.y, self.size.x, self.size.y)
+  
+  for key, door in pairs(self.doors) do
+    door:draw()
+  end
   
   if debug then
     love.graphics.print(string.format('id: %s level: %s index: %s', self:getId(), self.level, self.index), 

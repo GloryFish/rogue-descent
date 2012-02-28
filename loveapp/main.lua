@@ -12,10 +12,12 @@ require 'middleclass-extras'
 require 'gamestate'
 require 'input'
 require 'logger'
+require 'assets'
 
 scenes = {}
-require 'scenes/base'
+require 'scenes/game'
 require 'scenes/roomviewer'
+require 'scenes/notifytest'
 
 function love.load()
   debug = true
@@ -28,38 +30,13 @@ function love.load()
   math.randomseed(seed);
   math.random(); math.random(); math.random()
 
-  fonts = {
-    default        = love.graphics.newFont('resources/fonts/silkscreen.ttf', 24),
-    small          = love.graphics.newFont('resources/fonts/silkscreen.ttf', 20),
-    tiny           = love.graphics.newFont('resources/fonts/silkscreen.ttf', 14),
-    button         = love.graphics.newFont('resources/fonts/silkscreen.ttf', 18),
-    buttonSelected = love.graphics.newFont('resources/fonts/silkscreen.ttf', 20),
-  }
-
-  music = {
-  }
-
-
-  sounds = {
-    menumove = love.audio.newSource('resources/sounds/menu_move.mp3', 'static'),
-    menuselect = love.audio.newSource('resources/sounds/menu_select.mp3', 'static'),
-  }
-
-  images = {
-      spritesheet = love.graphics.newImage('resources/images/spritesheet.png'),
-  }
-
-  for i, image in ipairs(images) do
-    image:setFilter('nearest', 'nearest')
-  end
-
   input = Input()
 
   soundOn = true
   love.audio.setVolume(1)
 
   Gamestate.registerEvents()
-  Gamestate.switch(scenes.roomviewer)
+  Gamestate.switch(scenes.game)
 end
 
 function love.update(dt)

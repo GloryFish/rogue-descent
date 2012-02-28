@@ -20,7 +20,7 @@ function Dungeon:reset()
   self.rooms = {}
   self.roomSize = vector(800, 400)
   
-  local startingRoom = Room(1, 1)
+  local startingRoom = Room(1, 1, vector(0, 0))
   startingRoom.size = self.roomSize
   
   self.rooms[startingRoom.id] = startingRoom
@@ -36,12 +36,34 @@ function Dungeon:positionForRoomAtLevelAndIndex(level, index)
                 level * self.roomSize.y - self.roomSize.y)
 end
 
+function Dungeon:goToLevelAndIndexFromRoom(level, index, room)
+  local destinationRoom = self.rooms[self:idForLevelAndIndex(level, index)]
+  
+  if not in_table(destinationRoom.id, room:getNeighborsIds)
+  
+  if destinationRoom == nil then
+    local destinationPosition = self:positionForRoomAtLevelAndIndex(destinationLevel, destinationIndex)
+    destinationRoom = Room(destinationLevel, destinationIndex, destinationPosition)
+    destinationRoom.size = room.size
+    self.rooms[destinationRoom:getId()] = destinationRoom 
+    print('Created new room')
+    
+  else
+    print('Found existing room')
+  end
+  print(destinationRoom)
+  
+  assert(destinationRoom ~= nil, 'couldn\'t make a valid room')
+  
+  self.currentRoom = destinationRoom
+end
+
 -- Location: lr, ur, ll, lr, room is a Room() object
 function Dungeon:goToLocationFromRoom(location, room)
   local valid_locations = {'ul', 'ur', 'll', 'lr'}
   assert(in_table(location, valid_locations), string.format('invalid location: %s', location))
   
-  local destinationId = nil
+  -- local destinationId = nil
   local destinationLevel = nil
   local destinationIndex = nil
 
@@ -80,24 +102,7 @@ function Dungeon:goToLocationFromRoom(location, room)
     destinationIndex = room.index + 1
   end
   
-  local destinationRoom = self.rooms[self:idForLevelAndIndex(destinationLevel, destinationIndex)]
-  
-  if destinationRoom == nil then
-    destinationRoom = Room(destinationLevel, destinationIndex)
-    destinationRoom.position = self:positionForRoomAtLevelAndIndex(destinationLevel, destinationIndex)
-    destinationRoom.size = room.size
-    self.rooms[destinationRoom:getId()] = destinationRoom 
-    print('Created new room')
-    
-  else
-    print('Found existing room')
-  end
-  print(destinationRoom)
-  
-  assert(destinationRoom ~= nil, 'couldn\'t make a valid room')
-  
-  
-  self.currentRoom = destinationRoom
+  self:goToLevelAndIndexFromRoom(destinationLevel, destinationIndex, room)
 end
 
 function Dungeon:update(dt)
