@@ -18,10 +18,9 @@ end
 
 function Dungeon:reset()
   self.rooms = {}
-  self.roomSize = vector(800, 400)
+  self.roomSize = vector(640, 320)
   
-  local startingRoom = Room(1, 1, vector(0, 0))
-  startingRoom.size = self.roomSize
+  local startingRoom = Room(1, 1, vector(0, 0), self.roomSize)
   
   self.rooms[startingRoom.id] = startingRoom
   self.currentRoom = startingRoom
@@ -39,12 +38,9 @@ end
 function Dungeon:goToLevelAndIndexFromRoom(level, index, room)
   local destinationRoom = self.rooms[self:idForLevelAndIndex(level, index)]
   
-  if not in_table(destinationRoom.id, room:getNeighborsIds)
-  
   if destinationRoom == nil then
     local destinationPosition = self:positionForRoomAtLevelAndIndex(destinationLevel, destinationIndex)
-    destinationRoom = Room(destinationLevel, destinationIndex, destinationPosition)
-    destinationRoom.size = room.size
+    destinationRoom = Room(destinationLevel, destinationIndex, destinationPosition, self.roomSize)
     self.rooms[destinationRoom:getId()] = destinationRoom 
     print('Created new room')
     

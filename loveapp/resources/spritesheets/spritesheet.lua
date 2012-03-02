@@ -15,6 +15,11 @@ function getFrames()
 	local frames = {
 		
 			{
+				name = "background_1",
+				rect = { x = 20, y = 20, width = 16, height = 16 }, 
+			},
+		
+			{
 				name = "door_closed",
 				rect = { x = 2, y = 20, width = 16, height = 16 }, 
 			},
@@ -22,6 +27,11 @@ function getFrames()
 			{
 				name = "door_open",
 				rect = { x = 2, y = 2, width = 16, height = 16 }, 
+			},
+		
+			{
+				name = "player",
+				rect = { x = 38, y = 2, width = 10, height = 16 }, 
 			},
 		
 			{
