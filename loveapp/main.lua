@@ -12,7 +12,6 @@ require 'middleclass-extras'
 require 'gamestate'
 require 'input'
 require 'logger'
-require 'assets'
 
 scenes = {}
 require 'scenes/game'
