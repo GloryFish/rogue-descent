@@ -14,6 +14,7 @@ require 'utility'
 require 'notifier'
 require 'rectangle'
 require 'notifier'
+require 'spritesheets'
 
 Door = class('Door')
 
@@ -32,10 +33,11 @@ end
 function Door:receiveMessage(message, position)
   if message == 'mouse_up' then
     if self.rectangle:contains(position) then
-      
-      self.locked = false
-      print('got message mouse_up')
-      Notifier:postMessage('location_selected', self.destination)
+      if self.locked then
+        self.locked = false
+      else
+        Notifier:postMessage('location_selected', self.destination)
+      end
     end
   end
 end
@@ -45,9 +47,18 @@ end
 
 function Door:draw()
   colors.white:set()
-  local mode = 'line'
+  local frame = 'door_open'
   if self.locked then
-    mode = 'fill'
+    frame = 'door_closed'
   end
-  love.graphics.rectangle(mode, self.rectangle.position.x, self.rectangle.position.y, self.rectangle.size.x, self.rectangle.size.y)
+  
+  love.graphics.drawq(spritesheet.texture,
+                      spritesheet.quads[frame], 
+                      math.floor(self.position.x), 
+                      math.floor(self.position.y),
+                      0,
+                      2,
+                      2,
+                      0,
+                      0)
 end

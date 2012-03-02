@@ -22,7 +22,7 @@ function Dungeon:reset()
   
   local startingRoom = Room(1, 1, vector(0, 0), self.roomSize)
   
-  self.rooms[startingRoom.id] = startingRoom
+  self.rooms[startingRoom.destination.id] = startingRoom
   self.currentRoom = startingRoom
 end
 
@@ -41,7 +41,7 @@ function Dungeon:goToLevelAndIndexFromRoom(level, index, room)
   if destinationRoom == nil then
     local destinationPosition = self:positionForRoomAtLevelAndIndex(destinationLevel, destinationIndex)
     destinationRoom = Room(destinationLevel, destinationIndex, destinationPosition, self.roomSize)
-    self.rooms[destinationRoom:getId()] = destinationRoom 
+    self.rooms[destinationRoom.destination.id] = destinationRoom 
     print('Created new room')
     
   else
@@ -64,7 +64,7 @@ function Dungeon:goToLocationFromRoom(location, room)
   local destinationIndex = nil
 
   if location == 'ul' then
-    destinationLevel = room.level - 1
+    destinationLevel = room.destination.level - 1
     if destinationLevel < 1 then
       assert(false, 'cant go any higher than 1')
       return nil
@@ -77,7 +77,7 @@ function Dungeon:goToLocationFromRoom(location, room)
     end
     
   elseif location == 'ur' then
-    destinationLevel = room.level - 1
+    destinationLevel = room.destination.level - 1
     if destinationLevel < 1 then
       assert(false, 'cant go up here')
       return nil
@@ -90,11 +90,11 @@ function Dungeon:goToLocationFromRoom(location, room)
     end
     
   elseif location == 'll' then
-    destinationLevel = room.level + 1
-    destinationIndex = room.index
+    destinationLevel = room.destination.level + 1
+    destinationIndex = room.destination.index
   
   elseif location == 'lr' then
-    destinationLevel = room.level + 1
+    destinationLevel = room.destination.level + 1
     destinationIndex = room.index + 1
   end
   
@@ -116,48 +116,48 @@ function Dungeon:getNeighborsForRoom(room)
   local id = nil
   
   -- Upper left
-  level = room.level - 1
-  index = room.index - 1
+  level = room.destination.level - 1
+  index = room.destination.index - 1
   id = self:idForLevelAndIndex(level, index)
   if self.rooms[id] ~= nil then
     table.insert(neighbors, self.rooms[id])
   end
 
   -- Upper right
-  level = room.level - 1
-  index = room.index
+  level = room.destination.level - 1
+  index = room.destination.index
   id = self:idForLevelAndIndex(level, index)
   if self.rooms[id] ~= nil then
     table.insert(neighbors, self.rooms[id])
   end
   
   -- left
-  level = room.level
-  index = room.index - 1
+  level = room.destination.level
+  index = room.destination.index - 1
   id = self:idForLevelAndIndex(level, index)
   if self.rooms[id] ~= nil then
     table.insert(neighbors, self.rooms[id])
   end
   
   -- right
-  level = room.level
-  index = room.index + 1
+  level = room.destination.level
+  index = room.destination.index + 1
   id = self:idForLevelAndIndex(level, index)
   if self.rooms[id] ~= nil then
     table.insert(neighbors, self.rooms[id])
   end
   
   -- lower left
-  level = room.level + 1
-  index = room.index
+  level = room.destination.level + 1
+  index = room.destination.index
   id = self:idForLevelAndIndex(level, index)
   if self.rooms[id] ~= nil then
     table.insert(neighbors, self.rooms[id])
   end
   
   -- lower right
-  level = room.level + 1
-  index = room.index + 1
+  level = room.destination.level + 1
+  index = room.destination.index + 1
   id = self:idForLevelAndIndex(level, index)
   if self.rooms[id] ~= nil then
     table.insert(neighbors, self.rooms[id])
@@ -167,7 +167,7 @@ function Dungeon:getNeighborsForRoom(room)
 end
 
 function Dungeon:draw()
-  local level = self.currentRoom.level
+  local level = self.currentRoom.destination.level
 
   local neighbors = self:getNeighborsForRoom(self.currentRoom)
   for index, room in pairs(neighbors) do

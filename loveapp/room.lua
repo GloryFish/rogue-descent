@@ -11,7 +11,8 @@ require 'vector'
 require 'rectangle'
 require 'colors'
 require 'spritesheets'
-
+require 'destination'
+require 'door'
 
 Room = class('Room')
 
@@ -21,12 +22,10 @@ function Room:initialize(level, index, position, size)
   assert(position ~= nil, 'Room intialized without position')
   assert(position ~= nil, 'Room intialized without size')
   
-  self.level    = level
-  self.index    = index
+  self.destination = Destination(level, index)
+  
   self.position = position
   self.size     = size
-
-  self.id = self:getId()
   
   self:generate()
   
@@ -35,6 +34,7 @@ end
 
 -- Generate a random room
 function Room:generate()
+  -- background and walls
   self.tiles = {}
   
   local width = self.size.x / 32
@@ -50,14 +50,17 @@ function Room:generate()
       end
     end
   end
+  
+  -- doors
+  -- self.doors = {
+  --   ul = Door()
+  -- }
+  
+  
 end
 
 function Room:__tostring()
-	return "Room ("..tonumber(self.level)..","..tonumber(self.index)..","..tonumber(self.id)..") ("..tonumber(self.position.x)..","..tonumber(self.position.y)..")"
-end
-
-function Room:getId()
-	return ((self.level - 1) * self.level / 2) + self.index
+	return "Room ("..tonumber(self.destination.level)..","..tonumber(self.destination.index)..","..tonumber(self.destination.id)..") ("..tonumber(self.position.x)..","..tonumber(self.position.y)..")"
 end
 
 function Room:update(dt)
@@ -82,7 +85,7 @@ function Room:draw()
   love.graphics.draw(self.spritebatch)
   
   if debug then
-    love.graphics.print(string.format('id: %s level: %s index: %s', self:getId(), self.level, self.index), 
+    love.graphics.print(string.format('id: %s level: %s index: %s', self.destination.id, self.destination.level, self.destination.index), 
                         math.floor(self.position.x + 10), 
                         math.floor(self.position.y + 10));
   end
