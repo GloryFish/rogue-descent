@@ -25,13 +25,10 @@ function Player:update(dt)
 end
 
 function Player:draw()
-  love.graphics.drawq(spritesheet.texture,
-                      spritesheet.quads['player'], 
-                      math.floor(self.position.x), 
-                      math.floor(self.position.y),
-                      0,
-                      2,
-                      2,
-                      0,
-                      0)
+  spritesheet.batch:addq(spritesheet.quads['player'], 
+                         math.floor(self.position.x), 
+                         math.floor(self.position.y),
+                         0,
+                         2,
+                         2)
 end

@@ -16,20 +16,18 @@ require 'door'
 
 Room = class('Room')
 
-function Room:initialize(level, index, position, size)
-  assert(level ~= nil, 'Room intialized without level')
-  assert(index ~= nil, 'Room intialized without index')
+function Room:initialize(destination, position, size)
+  assert(instanceOf(Destination, destination), 'destination must be a Destination object')
   assert(position ~= nil, 'Room intialized without position')
-  assert(position ~= nil, 'Room intialized without size')
+  assert(size ~= nil, 'Room intialized without size')
   
-  self.destination = Destination(level, index)
-  
+  self.destination = destination
+  self.level = self.destination.level
+  self.index = self.destination.index
   self.position = position
   self.size     = size
   
   self:generate()
-  
-  self.spritebatch = love.graphics.newSpriteBatch(spritesheet.texture, 1000)
 end
 
 -- Generate a random room
@@ -52,11 +50,31 @@ function Room:generate()
   end
   
   -- doors
-  -- self.doors = {
-  --   ul = Door()
-  -- }
+  self.doors = {}
   
+  -- ul
+  if self.destination.index > 1 and self.destination.level > 1 then
+    local pos = vector(self.position.x + 32 * 7, self.position.y)
+    self.doors.ul = Door(pos, self, Destination(self.destination.level - 1, self.destination.index - 1))
+  else
+    self.doors.ul = nil
+  end
+    
+  -- ur
+  if self.destination.index < self.destination.level and self.destination.level > 1 then
+    local pos = vector(self.position.x + self.size.x - 32 * 7, self.position.y)
+    self.doors.ur = Door(pos, self, Destination(self.destination.level - 1, self.destination.index))
+  else
+    self.doors.ur = nil
+  end
   
+  -- ll
+  local pos = vector(self.position.x + 32 * 3, self.position.y + self.size.y - 32)
+  self.doors.ll = Door(pos, self, Destination(self.destination.level + 1, self.destination.index))
+  
+  -- lr
+  pos = vector(self.position.x + self.size.x - 32 * 3, self.position.y + self.size.y - 32)
+  self.doors.lr = Door(pos, self, Destination(self.destination.level + 1, self.destination.index + 1))
 end
 
 function Room:__tostring()
@@ -66,28 +84,29 @@ end
 function Room:update(dt)
 end
 
-
-function Room:draw()
-  self.spritebatch:clear()
-  
-  colors.white:set()
-  for x, column in ipairs(self.tiles) do
-    for y, quadname in ipairs(column) do
-      self.spritebatch:addq(spritesheet.quads[quadname], 
-                            (x - 1) * 32, 
-                            (y - 1) * 32,
-                            0,
-                            2,
-                            2)
+function Room:unlockDoorTo(destination)
+  for key, door in pairs(self.doors) do
+    if door.destination == destination then
+      door.locked = false
     end
   end
+end
 
-  love.graphics.draw(self.spritebatch)
+
+function Room:draw()
+  for x, column in ipairs(self.tiles) do
+    for y, quadname in ipairs(column) do
+      spritesheet.batch:addq(spritesheet.quads[quadname], 
+                              self.position.x + ((x - 1) * 32), 
+                              self.position.y + ((y - 1) * 32),
+                              0,
+                              2,
+                              2)
+    end
+  end
   
-  if debug then
-    love.graphics.print(string.format('id: %s level: %s index: %s', self.destination.id, self.destination.level, self.destination.index), 
-                        math.floor(self.position.x + 10), 
-                        math.floor(self.position.y + 10));
+  for name, door in pairs(self.doors) do
+    door:draw()
   end
 end
 

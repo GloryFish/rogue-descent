@@ -20,7 +20,8 @@ Door = class('Door')
 
 function Door:initialize(position, room, destination)
   assert(position ~= nil, 'Door initilized without position')
-  assert(position ~= nil, 'Door initilized without room')
+  assert(instanceOf(Room, room), 'Door initilized with invalid room')
+  assert(instanceOf(Destination, destination), 'Door initilized with invalid destination')
   
   self.rectangle = Rectangle(position, vector(40, 40))
   self.room = room
@@ -36,7 +37,9 @@ function Door:receiveMessage(message, position)
       if self.locked then
         self.locked = false
       else
-        Notifier:postMessage('location_selected', self.destination)
+        print(string.format('posted door_selected dest: %s', tostring(self.destination)))
+        
+        Notifier:postMessage('door_selected', self)
       end
     end
   end
@@ -52,13 +55,10 @@ function Door:draw()
     frame = 'door_closed'
   end
   
-  love.graphics.drawq(spritesheet.texture,
-                      spritesheet.quads[frame], 
-                      math.floor(self.position.x), 
-                      math.floor(self.position.y),
-                      0,
-                      2,
-                      2,
-                      0,
-                      0)
+  spritesheet.batch:addq(spritesheet.quads[frame], 
+                         math.floor(self.rectangle.position.x), 
+                         math.floor(self.rectangle.position.y),
+                         0,
+                         2,
+                         2)
 end

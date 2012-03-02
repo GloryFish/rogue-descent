@@ -25,6 +25,7 @@ function scene:enter(pre)
 	self.camera.deadzone = 0
 	
 	self.player.position = self.dungeon.currentRoom.position + vector(self.dungeon.currentRoom.size.x / 2, self.dungeon.currentRoom.size.y / 2)
+	Notifier:listenForMessage('door_selected', self)
 end
 
 function scene:keypressed(key, unicode)
@@ -41,6 +42,19 @@ function scene:mousereleased(x, y, button)
 end
 
 function scene:receiveMessage(message, data)
+  if message == 'door_selected' then
+    local door = data
+    print(string.format('got the message'))
+    print(door.room)
+    print(self.dungeon.currentRoom)
+    if door.room == self.dungeon.currentRoom then -- Player can only activate a door in the current room
+      print(string.format('setting dest: %s', tostring(door.destination)))
+      local previousDestination = self.dungeon.currentRoom.destination
+      self.dungeon:setCurrentRoom(door.destination)
+      self.dungeon.currentRoom:unlockDoorTo(previousDestination)
+    end
+      
+  end
 end
 
 function scene:update(dt)
@@ -54,10 +68,14 @@ function scene:update(dt)
 end
 
 function scene:draw()
+  spritesheet.batch:clear()
+  
   self.camera:apply()
 
   self.dungeon:draw()
   self.player:draw()
+
+  love.graphics.draw(spritesheet.batch)
   
   self.camera:unapply()
 end
