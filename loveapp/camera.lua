@@ -24,6 +24,11 @@ function Camera:initialize()
   self.focus = vector(love.graphics.getWidth() / 2, love.graphics.getHeight() / 2)
   self.deadzone = 100
   
+  self.shakeDuration = 0
+  self.shakeAmount = vector(0, 0)
+  self.shakeMax = vector(20, 20)
+  self.shakeIntensity = 1
+  
   self.zoom = 1
 end
 
@@ -66,16 +71,33 @@ function Camera:update(dt)
   -- Update the offset
   self.offset = vector(math.floor(self.position.x - love.graphics.getWidth() / 2),
                        math.floor(self.position.y - love.graphics.getHeight() / 2))
+  
+  if self.shakeDuration > 0 then
+    self.shakeAmount = vector(math.random() * self.shakeMax.x, math.random() * self.shakeMax.y)
+    
+    self.shakeDuration = self.shakeDuration - dt
+  end
+  
 end
+
+function Camera:shake(duration, intesity)
+  self.shakeDuration = duration
+  self.shakeIntensity = intesity
+  if self.shakeIntensity > 1 then
+    self.shakeIntensity = 1
+  end
+end
+
 
 function Camera:apply()
   love.graphics.push()
 
+  local camPos = self.offset + self.shakeAmount
   -- love.graphics.translate(-love.graphics.getWidth() / 2 * self.zoom, -love.graphics.getHeight() / 2 * self.zoom)
   -- love.graphics.scale(self.zoom)
   -- love.graphics.translate(love.graphics.getWidth() / 2 * self.zoom, love.graphics.getHeight() / 2 * self.zoom)
   -- 
-  love.graphics.translate(-self.offset.x, -self.offset.y)
+  love.graphics.translate(-camPos.x, -camPos.y)
 
   -- 
   -- love.graphics.translate(love.graphics.getWidth() / 2, love.graphics.getHeight() / 2)

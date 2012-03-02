@@ -53,19 +53,39 @@ function Dungeon:setCurrentRoom(destination)
     print('Found existing room')
   end
 
-  assert(room ~= nil, 'couldn\'t make a valid room')
+  assert(instanceOf(Room, room), 'couldn\'t make a valid room')
   
   self.currentRoom = room
 end
 
 function Dungeon:update(dt)
-  -- for index, room in pairs(self.rooms) do
-  --   room:update(dt)
-  -- end
+  for index, destination in ipairs(self:getNeighborhood(self.currentRoom.destination)) do
+    self.rooms[destination.id]:update(dt)
+  end
 end
 
+-- Gives a set of destinations (that actually have rooms) in an area around a given destination
+function Dungeon:getNeighborhood(destination)
+ local spread = 3
+ 
+ local neighborhood = {}
+ 
+ for level = destination.level - spread, destination.level + spread do
+   for index = destination.index - spread, destination.index + spread do
+     if level > 0 and index > 0 and index <= level then
+       local dest = Destination(level, index)
+       if self.rooms[dest.id] ~= nil then
+         table.insert(neighborhood, dest)
+       end
+     end
+   end
+ end
+ return neighborhood
+end
+
+
 function Dungeon:draw()
-  for index, room in pairs(self.rooms) do
-    room:draw()
+  for index, destination in ipairs(self:getNeighborhood(self.currentRoom.destination)) do
+    self.rooms[destination.id]:draw()
   end
 end
