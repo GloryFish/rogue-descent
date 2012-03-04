@@ -25,6 +25,7 @@ function Camera:initialize()
   self.deadzone = 100
   
   self.shakeDuration = 0
+  self.shakeTime = 0
   self.shakeAmount = vector(0, 0)
   self.shakeMax = vector(20, 20)
   self.shakeIntensity = 1
@@ -73,7 +74,7 @@ function Camera:update(dt)
                        math.floor(self.position.y - love.graphics.getHeight() / 2))
   
   if self.shakeDuration > 0 then
-    self.shakeAmount = vector(math.random() * self.shakeMax.x, math.random() * self.shakeMax.y)
+    self.shakeAmount = vector(math.random() * self.shakeMax.x, math.random() * self.shakeMax.y) * (self.shakeDuration / self.shakeTime)
     
     self.shakeDuration = self.shakeDuration - dt
   end
@@ -82,6 +83,7 @@ end
 
 function Camera:shake(duration, intesity)
   self.shakeDuration = duration
+  self.shakeTime = duration
   self.shakeIntensity = intesity
   if self.shakeIntensity > 1 then
     self.shakeIntensity = 1
