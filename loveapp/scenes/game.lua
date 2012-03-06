@@ -44,6 +44,9 @@ end
 
 function scene:mousereleased(x, y, button)
   Notifier:postMessage('mouse_up', self.camera:screenToWorld(vector(x, y)))
+  
+  self.player:addPathNode(self.camera:screenToWorld(vector(x, y)))
+  
 end
 
 function scene:receiveMessage(message, data)
