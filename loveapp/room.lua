@@ -26,6 +26,7 @@ function Room:initialize(destination, position, size)
   self.index = self.destination.index
   self.position = position
   self.size     = size
+  self.center = position + size / 2
   
   self:generate()
 end

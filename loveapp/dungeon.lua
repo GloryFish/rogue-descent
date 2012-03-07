@@ -30,6 +30,51 @@ function Dungeon:idForLevelAndIndex(level, index)
   return ((level - 1) * level / 2) + index	
 end
 
+function Dungeon:pathBetweenAdjacentDestinations(a, b)
+  assert(instanceOf(Destination, a), 'a must be a Destination object')
+  assert(instanceOf(Destination, b), 'a must be a Destination object')
+  assert(self.rooms[a.id] ~= nil, 'a must be an existing room')
+  assert(self.rooms[b.id] ~= nil, 'b must be an existing room')
+  
+  local roomA = self.rooms[a.id]
+  local roomB = self.rooms[b.id]
+  local doorA = nil
+  local doorB = nil
+  
+  -- There must be a matching set of unlocked doors between the two rooms
+  for key, door in pairs(roomA.doors) do
+    if door.destination == b and not door.locked then
+      doorA = door
+    end
+  end
+  for key, door in pairs(roomB.doors) do
+    if door.destination == a and not door.locked then
+      doorB = door
+    end
+  end
+  
+  if doorA == nil then
+    print('doorA is nil')
+    return {}
+  end
+  if doorB == nil then
+    print('doorB is nil')
+    return {}
+  end
+  
+  local path = {}
+  table.insert(path, doorA.center)
+  table.insert(path, doorB.center)
+  table.insert(path, roomB.center)
+  
+  print('Found path:')
+  for i, node in ipairs(path) do
+    print(node)
+  end
+  
+  return path
+end
+
 function Dungeon:positionForRoomAtDestination(destination)
   assert(instanceOf(Destination, destination), 'destination must be a Destination object')
   local level = destination.level

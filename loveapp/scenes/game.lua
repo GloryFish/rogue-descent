@@ -25,7 +25,9 @@ function scene:enter(pre)
 	self.camera.deadzone = 0
 	self.logger = Logger()
 	
-	self.player.position = self.dungeon.currentRoom.position + vector(self.dungeon.currentRoom.size.x / 2, self.dungeon.currentRoom.size.y / 2)
+	local roomCenter = vector(self.dungeon.currentRoom.size.x / 2, self.dungeon.currentRoom.size.y / 2)
+	self.player.position = self.dungeon.currentRoom.position + roomCenter
+	self.camera.position = roomCenter
 	Notifier:listenForMessage('door_selected', self)
 end
 
@@ -45,7 +47,7 @@ end
 function scene:mousereleased(x, y, button)
   Notifier:postMessage('mouse_up', self.camera:screenToWorld(vector(x, y)))
   
-  self.player:addPathNode(self.camera:screenToWorld(vector(x, y)))
+  -- self.player:addPathNode(self.camera:screenToWorld(vector(x, y)))
   
 end
 
@@ -61,6 +63,9 @@ function scene:receiveMessage(message, data)
         local previousDestination = self.dungeon.currentRoom.destination
         self.dungeon:setCurrentRoom(door.destination)
         self.dungeon.currentRoom:unlockDoorTo(previousDestination)
+        
+        local path = self.dungeon:pathBetweenAdjacentDestinations(previousDestination, door.destination)
+        self.player:followPath(path)
     end
       
   end

@@ -27,7 +27,7 @@ function Door:initialize(position, room, destination)
   self.room = room
   self.destination = destination
   self.locked = true
-  
+  self.center = self.rectangle.position + vector(16, 16)
   Notifier:listenForMessage('mouse_up', self)
 end
 
