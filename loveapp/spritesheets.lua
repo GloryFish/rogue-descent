@@ -11,12 +11,12 @@ require 'middleclass'
 Spritesheet = class('Spritesheet')
 
 function Spritesheet:initialize(name)
-  self.texture = love.graphics.newImage('resources/images/'..name..'.png') 
+  self.texture = love.graphics.newImage('resources/sprites/'..name..'.png') 
   self.texture:setFilter('nearest', 'nearest')
   
   self.quads = {}
   
-  local frameData = require('resources/spritesheets/'..name..'.lua')
+  local frameData = require('resources/sprites/'..name..'.lua')
   local frames = frameData.getFrames()
   
   for name, frame in pairs(frames) do

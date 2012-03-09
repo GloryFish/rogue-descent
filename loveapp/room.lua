@@ -13,6 +13,7 @@ require 'colors'
 require 'spritesheets'
 require 'destination'
 require 'door'
+require 'monster'
 
 Room = class('Room')
 
@@ -28,6 +29,8 @@ function Room:initialize(destination, position, size)
   self.size     = size
   self.center = position + size / 2
   self.platforms = {}
+  self.objects = {}
+
   self:generate()
 end
 
@@ -102,6 +105,13 @@ function Room:generate()
   -- Add platforms
   table.insert(self.platforms, vector(self.position.x + 16 + 32 * 5, self.position.y + self.size.y - 32))
   table.insert(self.platforms, vector(self.position.x + self.size.x - (32 * 5) + 16, self.position.y + self.size.y - 32))
+  
+  -- Add objects
+  for i = 1, 5 do
+    local monster = Monster(self.destination.level)
+    monster.position = vector(self.position.x + 120 + (32 * #self.objects), self.position.y + 230)
+    table.insert(self.objects, monster)    
+  end
 end
 
 function Room:__tostring()
@@ -134,6 +144,10 @@ function Room:draw()
   
   for name, door in pairs(self.doors) do
     door:draw()
+  end
+
+  for index, object in ipairs(self.objects) do
+    object:draw()
   end
 end
 
