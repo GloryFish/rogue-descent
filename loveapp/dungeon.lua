@@ -20,9 +20,9 @@ function Dungeon:reset()
   self.rooms = {}
   self.roomSize = vector(640, 320)
   
-  local startingRoom = Room(1, 1, vector(0, 0), self.roomSize)
+  local startingRoom = Room(Destination(1, 1), vector(0, 0), self.roomSize)
   
-  self.rooms[startingRoom.id] = startingRoom
+  self.rooms[startingRoom.destination.id] = startingRoom
   self.currentRoom = startingRoom
 end
 
@@ -30,148 +30,107 @@ function Dungeon:idForLevelAndIndex(level, index)
   return ((level - 1) * level / 2) + index	
 end
 
-function Dungeon:positionForRoomAtLevelAndIndex(level, index)
+function Dungeon:pathBetweenAdjacentDestinations(a, b)
+  assert(instanceOf(Destination, a), 'a must be a Destination object')
+  assert(instanceOf(Destination, b), 'a must be a Destination object')
+  assert(self.rooms[a.id] ~= nil, 'a must be an existing room')
+  assert(self.rooms[b.id] ~= nil, 'b must be an existing room')
+  
+  local roomA = self.rooms[a.id]
+  local roomB = self.rooms[b.id]
+  local doorA = nil
+  local doorB = nil
+  
+  -- There must be a matching set of unlocked doors between the two rooms
+  for key, door in pairs(roomA.doors) do
+    if door.destination == b and not door.locked then
+      doorA = door
+    end
+  end
+  for key, door in pairs(roomB.doors) do
+    if door.destination == a and not door.locked then
+      doorB = door
+    end
+  end
+  
+  if doorA == nil then
+    print('doorA is nil')
+    return {}
+  end
+  if doorB == nil then
+    print('doorB is nil')
+    return {}
+  end
+  
+  local path = {}
+  table.insert(path, doorA.center)
+  table.insert(path, doorB.center)
+  table.insert(path, roomB.center)
+  
+  print('Found path:')
+  for i, node in ipairs(path) do
+    print(node)
+  end
+  
+  return path
+end
+
+function Dungeon:positionForRoomAtDestination(destination)
+  assert(instanceOf(Destination, destination), 'destination must be a Destination object')
+  local level = destination.level
+  local index = destination.index
+
   return vector((-level * self.roomSize.x / 2) + (self.roomSize.x / 2) + (self.roomSize.x * index) - self.roomSize.x,
                 level * self.roomSize.y - self.roomSize.y)
 end
 
-function Dungeon:goToLevelAndIndexFromRoom(level, index, room)
-  local destinationRoom = self.rooms[self:idForLevelAndIndex(level, index)]
+function Dungeon:setCurrentRoom(destination)
+  assert(instanceOf(Destination, destination), 'destination must be a Destination object')
   
-  if destinationRoom == nil then
-    local destinationPosition = self:positionForRoomAtLevelAndIndex(destinationLevel, destinationIndex)
-    destinationRoom = Room(destinationLevel, destinationIndex, destinationPosition, self.roomSize)
-    self.rooms[destinationRoom:getId()] = destinationRoom 
+  local room = self.rooms[destination.id]
+  if room == nil then
+    local position = self:positionForRoomAtDestination(destination)
+    room = Room(destination, position, self.roomSize)
+    self.rooms[destination.id] = room 
     print('Created new room')
     
   else
     print('Found existing room')
   end
-  print(destinationRoom)
-  
-  assert(destinationRoom ~= nil, 'couldn\'t make a valid room')
-  
-  self.currentRoom = destinationRoom
-end
 
--- Location: lr, ur, ll, lr, room is a Room() object
-function Dungeon:goToLocationFromRoom(location, room)
-  local valid_locations = {'ul', 'ur', 'll', 'lr'}
-  assert(in_table(location, valid_locations), string.format('invalid location: %s', location))
+  assert(instanceOf(Room, room), 'couldn\'t make a valid room')
   
-  -- local destinationId = nil
-  local destinationLevel = nil
-  local destinationIndex = nil
-
-  if location == 'ul' then
-    destinationLevel = room.level - 1
-    if destinationLevel < 1 then
-      assert(false, 'cant go any higher than 1')
-      return nil
-    end
-    
-    destinationIndex = room.index - 1
-    if destinationIndex < 1 then
-      assert(false, 'cant go upper left here')
-      return nil
-    end
-    
-  elseif location == 'ur' then
-    destinationLevel = room.level - 1
-    if destinationLevel < 1 then
-      assert(false, 'cant go up here')
-      return nil
-    end
-    
-    destinationIndex = room.index
-    if destinationIndex > destinationLevel then
-      assert(false, 'cant go upper right here')
-      return nil
-    end
-    
-  elseif location == 'll' then
-    destinationLevel = room.level + 1
-    destinationIndex = room.index
-  
-  elseif location == 'lr' then
-    destinationLevel = room.level + 1
-    destinationIndex = room.index + 1
-  end
-  
-  self:goToLevelAndIndexFromRoom(destinationLevel, destinationIndex, room)
+  self.currentRoom = room
 end
 
 function Dungeon:update(dt)
-  local neighbors = self:getNeighborsForRoom(self.currentRoom)
-  for index, room in pairs(neighbors) do
-    room:update(dt)
+  for index, destination in ipairs(self:getNeighborhood(self.currentRoom.destination)) do
+    self.rooms[destination.id]:update(dt)
   end
-  self.currentRoom:draw(dt)
 end
 
-function Dungeon:getNeighborsForRoom(room)
-  local neighbors = {}
-  local level = nil
-  local index = nil
-  local id = nil
-  
-  -- Upper left
-  level = room.level - 1
-  index = room.index - 1
-  id = self:idForLevelAndIndex(level, index)
-  if self.rooms[id] ~= nil then
-    table.insert(neighbors, self.rooms[id])
-  end
-
-  -- Upper right
-  level = room.level - 1
-  index = room.index
-  id = self:idForLevelAndIndex(level, index)
-  if self.rooms[id] ~= nil then
-    table.insert(neighbors, self.rooms[id])
-  end
-  
-  -- left
-  level = room.level
-  index = room.index - 1
-  id = self:idForLevelAndIndex(level, index)
-  if self.rooms[id] ~= nil then
-    table.insert(neighbors, self.rooms[id])
-  end
-  
-  -- right
-  level = room.level
-  index = room.index + 1
-  id = self:idForLevelAndIndex(level, index)
-  if self.rooms[id] ~= nil then
-    table.insert(neighbors, self.rooms[id])
-  end
-  
-  -- lower left
-  level = room.level + 1
-  index = room.index
-  id = self:idForLevelAndIndex(level, index)
-  if self.rooms[id] ~= nil then
-    table.insert(neighbors, self.rooms[id])
-  end
-  
-  -- lower right
-  level = room.level + 1
-  index = room.index + 1
-  id = self:idForLevelAndIndex(level, index)
-  if self.rooms[id] ~= nil then
-    table.insert(neighbors, self.rooms[id])
-  end
-  
-  return neighbors
+-- Gives a set of destinations (that actually have rooms) in an area around a given destination
+function Dungeon:getNeighborhood(destination)
+ local spread = 3
+ 
+ local neighborhood = {}
+ 
+ for level = destination.level - spread, destination.level + spread do
+   for index = destination.index - spread, destination.index + spread do
+     if level > 0 and index > 0 and index <= level then
+       local dest = Destination(level, index)
+       if self.rooms[dest.id] ~= nil then
+         table.insert(neighborhood, dest)
+       end
+     end
+   end
+ end
+ return neighborhood
 end
+
 
 function Dungeon:draw()
-  local level = self.currentRoom.level
-
-  local neighbors = self:getNeighborsForRoom(self.currentRoom)
-  for index, room in pairs(neighbors) do
-    room:draw()
+  for index, destination in ipairs(self:getNeighborhood(self.currentRoom.destination)) do
+    self.rooms[destination.id]:draw()
   end
-  self.currentRoom:draw()
 end

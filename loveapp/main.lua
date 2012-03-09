@@ -29,6 +29,11 @@ function love.load()
   math.randomseed(seed);
   math.random(); math.random(); math.random()
 
+  fonts = {
+    default        = love.graphics.newFont('resources/fonts/silkscreen.ttf', 24),
+    small          = love.graphics.newFont('resources/fonts/silkscreen.ttf', 20),
+  }
+
   input = Input()
 
   soundOn = true

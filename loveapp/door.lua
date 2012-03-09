@@ -14,28 +14,33 @@ require 'utility'
 require 'notifier'
 require 'rectangle'
 require 'notifier'
+require 'spritesheets'
 
 Door = class('Door')
 
 function Door:initialize(position, room, destination)
   assert(position ~= nil, 'Door initilized without position')
-  assert(position ~= nil, 'Door initilized without room')
+  assert(instanceOf(Room, room), 'Door initilized with invalid room')
+  assert(instanceOf(Destination, destination), 'Door initilized with invalid destination')
   
   self.rectangle = Rectangle(position, vector(40, 40))
   self.room = room
   self.destination = destination
   self.locked = true
-  
+  self.center = self.rectangle.position + vector(16, 16)
   Notifier:listenForMessage('mouse_up', self)
 end
 
 function Door:receiveMessage(message, position)
   if message == 'mouse_up' then
     if self.rectangle:contains(position) then
-      
-      self.locked = false
-      print('got message mouse_up')
-      Notifier:postMessage('location_selected', self.destination)
+      if self.locked then
+        self.locked = false
+      else
+        print(string.format('posted door_selected dest: %s', tostring(self.destination)))
+        
+        Notifier:postMessage('door_selected', self)
+      end
     end
   end
 end
@@ -45,9 +50,15 @@ end
 
 function Door:draw()
   colors.white:set()
-  local mode = 'line'
+  local frame = 'door_open'
   if self.locked then
-    mode = 'fill'
+    frame = 'door_closed'
   end
-  love.graphics.rectangle(mode, self.rectangle.position.x, self.rectangle.position.y, self.rectangle.size.x, self.rectangle.size.y)
+  
+  spritesheet.batch:addq(spritesheet.quads[frame], 
+                         math.floor(self.rectangle.position.x), 
+                         math.floor(self.rectangle.position.y),
+                         0,
+                         2,
+                         2)
 end

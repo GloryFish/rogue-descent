@@ -14,7 +14,7 @@ require 'vector'
 Logger = class('Logger')
 
 function Logger:initialize(pos)
-  self.position = pos
+  self.position = pos or vector(10, 10)
   self.color = {
     r = 200,
     g = 200,
