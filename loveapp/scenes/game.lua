@@ -54,9 +54,11 @@ end
 function scene:receiveMessage(message, data)
   if message == 'door_selected' then
     local door = data
+    
     print(string.format('got the message'))
     print(door.room)
     print(self.dungeon.currentRoom)
+    
     if door.room == self.dungeon.currentRoom or  -- Player can only activate a door in the current room
        door.destination == self.dungeon.currentRoom.destination then -- Or the matching door in the adjoining room
         print(string.format('setting dest: %s', tostring(door.destination)))

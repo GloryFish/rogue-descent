@@ -27,8 +27,30 @@ function Room:initialize(destination, position, size)
   self.position = position
   self.size     = size
   self.center = position + size / 2
-  
+  self.platforms = {}
   self:generate()
+end
+
+-- Returns the nearest platform in a room to a supplied position
+-- If none are available, returns the room's center
+function Room:nearestPlatform(position)
+  local nearest = nil
+  local shortestDistance = 100000
+  
+  for index, platform in ipairs(self.platforms) do
+    local vec = position - platform
+    local dist = vec:len()
+    if dist < shortestDistance then
+      shortestDistance = dist
+      nearest = platform
+    end
+  end
+  
+  if nearest ~= nil then
+    return nearest
+  else
+    return self.center
+  end
 end
 
 -- Generate a random room
@@ -76,6 +98,10 @@ function Room:generate()
   -- lr
   pos = vector(self.position.x + self.size.x - 32 * 3, self.position.y + self.size.y - 32)
   self.doors.lr = Door(pos, self, Destination(self.destination.level + 1, self.destination.index + 1))
+  
+  -- Add platforms
+  table.insert(self.platforms, vector(self.position.x + 16 + 32 * 5, self.position.y + self.size.y - 32))
+  table.insert(self.platforms, vector(self.position.x + self.size.x - (32 * 5) + 16, self.position.y + self.size.y - 32))
 end
 
 function Room:__tostring()

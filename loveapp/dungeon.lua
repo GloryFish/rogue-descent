@@ -65,7 +65,7 @@ function Dungeon:pathBetweenAdjacentDestinations(a, b)
   local path = {}
   table.insert(path, doorA.center)
   table.insert(path, doorB.center)
-  table.insert(path, roomB.center)
+  table.insert(path, roomB:nearestPlatform(doorB.center))
   
   print('Found path:')
   for i, node in ipairs(path) do
