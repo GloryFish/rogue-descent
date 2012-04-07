@@ -34,13 +34,9 @@ end
 function Door:receiveMessage(message, position)
   if message == 'mouse_up' then
     if self.rectangle:contains(position) then
-      if self.locked then
-        self.locked = false
-      else
-        print(string.format('posted door_selected dest: %s', tostring(self.destination)))
-        
-        Notifier:postMessage('door_selected', self)
-      end
+      print(string.format('posted door_selected dest: %s', tostring(self.destination)))
+      self.room:unlockDoorTo(self.destination)
+      Notifier:postMessage('door_selected', self)
     end
   end
 end

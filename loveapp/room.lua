@@ -175,10 +175,12 @@ function Room:toWorldCoordsCenter(point)
   return world
 end
 
+-- Converts a world point to local tile coordinates
 function Room:toTileCoords(point)
-  local world = point - self.position
-  local coords = vector(math.floor(point.x / (self.tileSize * self.scale)) + 1,
-                        math.floor(point.y / (self.tileSize * self.scale)) + 1)
+  local loc = point - self.position
+  
+  local coords = vector(math.floor(loc.x / (self.tileSize * self.scale)) + 1,
+                        math.floor(loc.y / (self.tileSize * self.scale)) + 1)
   return coords
 end
 
@@ -205,6 +207,10 @@ function Room:unlockDoorTo(destination)
       door.locked = false
       
       local coords = self:toTileCoords(door.center)
+
+      print(tostring(door.center))
+      
+      print(tostring(coords))
       self.walkable[coords.x][coords.y] = true
     end
   end
