@@ -77,15 +77,20 @@ function Room:generate()
     for y = 1, height, 1 do 
       if y == 1 or y == height or x == 1 or x == width then
         self.tiles[x][y] = 'wall_1' 
-        self.walkable[x][y] = false
+        self.walkable[x][y] = false -- Outside wall is not walkable
       else
-        self.tiles[x][y] = 'background_1' 
-        self.walkable[x][y] = true
+          self.tiles[x][y] = 'background_1' -- Most of the background is not walkable
+        self.walkable[x][y] = false
       end
       
       self.scenery[x][y] = 'empty'
       
     end
+  end
+  
+  -- Make bottom row of tiles walkable
+  for x = 2, width - 1 do
+    self.walkable[x][height -1] = true
   end
   
   -- doors
@@ -119,13 +124,16 @@ function Room:generate()
   if self.doors.ul ~= nil then
     for y = 2, height - 1 do
       self.scenery[6][y] = 'ladder_1'
+      self.walkable[6][y] = true
     end
   end
   if self.doors.ur ~= nil then
     for y = 2, height - 1 do
       self.scenery[15][y] = 'ladder_1'
+      self.walkable[15][y] = true
     end
   end
+  
   
   -- Add platforms
   table.insert(self.platforms, vector(self.position.x + 16 + 32 * 5, self.position.y + self.size.y - 32))
