@@ -30,7 +30,10 @@ function Room:initialize(destination, position, size)
   self.center = position + size / 2
   self.platforms = {}
   self.objects = {}
-
+  
+  self.tileSize = 16
+  self.scale = 2
+  
   self:generate()
 end
 
@@ -58,20 +61,30 @@ end
 
 -- Generate a random room
 function Room:generate()
-  -- background and walls
+  -- background and walls and collision
   self.tiles = {}
+  self.walkable = {}
+  self.scenery = {}
   
   local width = self.size.x / 32
   local height = self.size.y / 32
 
   for x = 1, width, 1 do 
-    self.tiles[x] = {} 
+    self.tiles[x] = {}
+    self.walkable[x] = {}
+    self.scenery[x] = {}
+
     for y = 1, height, 1 do 
       if y == 1 or y == height or x == 1 or x == width then
         self.tiles[x][y] = 'wall_1' 
+        self.walkable[x][y] = false
       else
         self.tiles[x][y] = 'background_1' 
+        self.walkable[x][y] = true
       end
+      
+      self.scenery[x][y] = 'empty'
+      
     end
   end
   
@@ -80,7 +93,7 @@ function Room:generate()
   
   -- ul
   if self.destination.index > 1 and self.destination.level > 1 then
-    local pos = vector(self.position.x + 32 * 7, self.position.y)
+    local pos = vector(self.position.x + 32 * 5, self.position.y)
     self.doors.ul = Door(pos, self, Destination(self.destination.level - 1, self.destination.index - 1))
   else
     self.doors.ul = nil
@@ -88,29 +101,94 @@ function Room:generate()
     
   -- ur
   if self.destination.index < self.destination.level and self.destination.level > 1 then
-    local pos = vector(self.position.x + self.size.x - 32 * 7, self.position.y)
+    local pos = vector(self.position.x + self.size.x - 32 * 6, self.position.y)
     self.doors.ur = Door(pos, self, Destination(self.destination.level - 1, self.destination.index))
   else
     self.doors.ur = nil
   end
   
   -- ll
-  local pos = vector(self.position.x + 32 * 3, self.position.y + self.size.y - 32)
+  local pos = vector(self.position.x + 32 * 4, self.position.y + self.size.y - 32)
   self.doors.ll = Door(pos, self, Destination(self.destination.level + 1, self.destination.index))
   
   -- lr
-  pos = vector(self.position.x + self.size.x - 32 * 3, self.position.y + self.size.y - 32)
+  pos = vector(self.position.x + self.size.x - 32 * 5, self.position.y + self.size.y - 32)
   self.doors.lr = Door(pos, self, Destination(self.destination.level + 1, self.destination.index + 1))
+
+  -- Add ladders
+  if self.doors.ul ~= nil then
+    for y = 2, height - 1 do
+      self.scenery[6][y] = 'ladder_1'
+    end
+  end
+  if self.doors.ur ~= nil then
+    for y = 2, height - 1 do
+      self.scenery[15][y] = 'ladder_1'
+    end
+  end
   
   -- Add platforms
   table.insert(self.platforms, vector(self.position.x + 16 + 32 * 5, self.position.y + self.size.y - 32))
   table.insert(self.platforms, vector(self.position.x + self.size.x - (32 * 5) + 16, self.position.y + self.size.y - 32))
   
-  -- Add objects
-  for i = 1, 5 do
+  -- Add monsters
+  for i = 1, 3 do
     local monster = Monster(self.destination.level)
-    monster.position = vector(self.position.x + 120 + (32 * #self.objects), self.position.y + 230)
     table.insert(self.objects, monster)    
+  end
+  
+  -- Add items
+
+  
+  -- Position objects
+  local padding = 10
+  width = 0
+  for index, object in pairs(self.objects) do
+    width = width + object.size.x
+  end
+  width = width + (padding * (#self.objects - 1))
+  
+  local x = self.center.x - width / 2
+  for index, object in pairs(self.objects) do
+    object.position = vector(x + (object.size.x / 2), self.position.y + 285)
+    x = x + object.size.x + padding
+  end
+end
+
+function Room:toWorldCoords(point)
+  local world = vector(
+    (point.x - 1) * self.tileSize * self.scale,
+    (point.y - 1) * self.tileSize * self.scale
+  )
+  
+  return world
+end
+
+function Room:toWorldCoordsCenter(point)
+  local world = vector(
+    point.x * self.tileSize * self.scale,
+    point.y * self.tileSize * self.scale
+  )
+  
+  world = world + vector(self.tileSize * self.scale / 2, self.tileSize * self.scale / 2)
+  
+  return world
+end
+
+function Room:toTileCoords(point)
+  local world = point - self.position
+  local coords = vector(math.floor(point.x / (self.tileSize * self.scale)) + 1,
+                        math.floor(point.y / (self.tileSize * self.scale)) + 1)
+  return coords
+end
+
+function Room:tilePointIsWalkable(tile)
+  assert(vector.isvector(tile), 'tile must be a vector')
+  
+  if self.walkable[tile.x] ~= nil then
+    return self.walkable[tile.x][tile.y]
+  else
+    return false
   end
 end
 
@@ -125,20 +203,32 @@ function Room:unlockDoorTo(destination)
   for key, door in pairs(self.doors) do
     if door.destination == destination then
       door.locked = false
+      
+      local coords = self:toTileCoords(door.center)
+      self.walkable[coords.x][coords.y] = true
     end
   end
 end
 
-
 function Room:draw()
-  for x, column in ipairs(self.tiles) do
-    for y, quadname in ipairs(column) do
-      spritesheet.batch:addq(spritesheet.quads[quadname], 
-                              self.position.x + ((x - 1) * 32), 
-                              self.position.y + ((y - 1) * 32),
+  for x = 1, #self.tiles do
+    for y = 1, #self.tiles[x] do
+      local quad_bg = spritesheet.quads[self.tiles[x][y]]
+      local quad_scenery = spritesheet.quads[self.scenery[x][y]]
+
+      spritesheet.batch:addq(quad_bg, 
+                              self.position.x + ((x - 1) * self.tileSize * self.scale), 
+                              self.position.y + ((y - 1) * self.tileSize * self.scale),
                               0,
-                              2,
-                              2)
+                              self.scale,
+                              self.scale)
+                              
+      spritesheet.batch:addq(quad_scenery, 
+                              self.position.x + ((x - 1) * self.tileSize * self.scale), 
+                              self.position.y + ((y - 1) * self.tileSize * self.scale),
+                              0,
+                              self.scale,
+                              self.scale)
     end
   end
   
@@ -149,5 +239,21 @@ function Room:draw()
   for index, object in ipairs(self.objects) do
     object:draw()
   end
+  
+  if debug then
+    for x = 1, #self.tiles do
+      for y = 1, #self.tiles[x] do
+        if not self.walkable[x][y] then
+          spritesheet.batch:addq(spritesheet.quads['half_red'], 
+                                  self.position.x + ((x - 1) * self.tileSize * self.scale), 
+                                  self.position.y + ((y - 1) * self.tileSize * self.scale),
+                                  0,
+                                  self.scale,
+                                  self.scale)
+        end
+      end
+    end
+  end
+  
 end
 

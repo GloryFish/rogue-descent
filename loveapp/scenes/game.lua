@@ -76,6 +76,16 @@ end
 function scene:update(dt)
   self.logger:update(dt)
   self.logger:addLine('FPS: '..love.timer.getFPS())
+
+  local world = self.camera:screenToWorld(vector(love.mouse.getX(), love.mouse.getY()))
+  self.logger:addLine('Screen: '..tostring(vector(love.mouse.getX(), love.mouse.getY())))
+  self.logger:addLine('World: '..tostring(world))
+  local tile = self.dungeon.currentRoom:toTileCoords(world)
+  self.logger:addLine('Tile: '..tostring(tile))
+  
+  if self.dungeon.currentRoom:tilePointIsWalkable(tile) then
+    self.logger:addLine('Walkable')
+  end
   
   local count = 0
   for k, v in pairs(self.dungeon.rooms) do
