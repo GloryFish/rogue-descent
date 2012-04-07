@@ -262,7 +262,10 @@ end
 function Room:unlockDoorTo(destination)
   for key, door in pairs(self.doors) do
     if door.destination == destination then
-      door.locked = false
+      if door.locked then
+        door.locked = false
+        Notifier:postMessage('door_unlocked', door)
+      end
       
       local coords = self:toTileCoords(door.center)
 

@@ -30,49 +30,23 @@ function Dungeon:idForLevelAndIndex(level, index)
   return ((level - 1) * level / 2) + index	
 end
 
-function Dungeon:pathBetweenAdjacentDestinations(a, b)
-  assert(instanceOf(Destination, a), 'a must be a Destination object')
-  assert(instanceOf(Destination, b), 'a must be a Destination object')
-  assert(self.rooms[a.id] ~= nil, 'a must be an existing room')
-  assert(self.rooms[b.id] ~= nil, 'b must be an existing room')
+function Dungeon:destinationForPosition(position)
+  local level = math.floor(position.y / self.roomSize.y) + 1
+  local index = math.floor(position.x / self.roomSize.x) + 1
   
-  local roomA = self.rooms[a.id]
-  local roomB = self.rooms[b.id]
-  local doorA = nil
-  local doorB = nil
-  
-  -- There must be a matching set of unlocked doors between the two rooms
-  for key, door in pairs(roomA.doors) do
-    if door.destination == b and not door.locked then
-      doorA = door
-    end
-  end
-  for key, door in pairs(roomB.doors) do
-    if door.destination == a and not door.locked then
-      doorB = door
-    end
+  if level < 1 then
+    return nil
   end
   
-  if doorA == nil then
-    print('doorA is nil')
-    return {}
-  end
-  if doorB == nil then
-    print('doorB is nil')
-    return {}
+  if index < 1 then 
+    return nil
   end
   
-  local path = {}
-  table.insert(path, doorA.center)
-  table.insert(path, doorB.center)
-  table.insert(path, roomB:nearestPlatform(doorB.center))
-  
-  print('Found path:')
-  for i, node in ipairs(path) do
-    print(node)
+  if index > level then
+    return nil
   end
   
-  return path
+  return Destination(level, index)
 end
 
 function Dungeon:positionForRoomAtDestination(destination)
@@ -87,20 +61,25 @@ end
 function Dungeon:setCurrentRoom(destination)
   assert(instanceOf(Destination, destination), 'destination must be a Destination object')
   
+  local room = self:roomAt(destination)
+
+  assert(instanceOf(Room, room), 'couldn\'t make a valid room')
+  
+  self.currentRoom = room
+end
+
+function Dungeon:roomAt(destination)
   local room = self.rooms[destination.id]
   if room == nil then
     local position = self:positionForRoomAtDestination(destination)
     room = Room(destination, position, self.roomSize)
     self.rooms[destination.id] = room 
     print('Created new room')
-    
   else
     print('Found existing room')
   end
-
-  assert(instanceOf(Room, room), 'couldn\'t make a valid room')
   
-  self.currentRoom = room
+  return room
 end
 
 function Dungeon:update(dt)

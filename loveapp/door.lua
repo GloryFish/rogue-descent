@@ -22,6 +22,7 @@ function Door:initialize(position, room, destination)
   assert(position ~= nil, 'Door initilized without position')
   assert(instanceOf(Room, room), 'Door initilized with invalid room')
   assert(instanceOf(Destination, destination), 'Door initilized with invalid destination')
+  assert(room ~= nil, 'A door must exist within a room')
   
   self.rectangle = Rectangle(position, vector(40, 40))
   self.room = room
@@ -36,7 +37,6 @@ function Door:receiveMessage(message, position)
     if self.rectangle:contains(position) then
       print(string.format('posted door_selected dest: %s', tostring(self.destination)))
       self.room:unlockDoorTo(self.destination)
-      Notifier:postMessage('door_selected', self)
     end
   end
 end

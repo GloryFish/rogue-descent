@@ -28,7 +28,7 @@ function scene:enter(pre)
 	local roomCenter = vector(self.dungeon.currentRoom.size.x / 2, self.dungeon.currentRoom.size.y / 2)
 	self.player.position = vector(336, 272)
 	self.camera.position = roomCenter
-	Notifier:listenForMessage('door_selected', self)
+	Notifier:listenForMessage('door_unlocked', self)
 	Notifier:listenForMessage('mouse_up', self)
 end
 
@@ -50,39 +50,37 @@ function scene:mousereleased(x, y, button)
 end
 
 function scene:receiveMessage(message, data)
-  if message == 'door_selected' then
+  if message == 'door_unlocked' then
     local door = data
     
-    print(string.format('got the message'))
-    print(door.room)
-    print(self.dungeon.currentRoom)
-    
-    if door.room == self.dungeon.currentRoom or  -- Player can only activate a door in the current room
-       door.destination == self.dungeon.currentRoom.destination then -- Or the matching door in the adjoining room
-        print(string.format('setting dest: %s', tostring(door.destination)))
-        local previousDestination = self.dungeon.currentRoom.destination
-        self.dungeon:setCurrentRoom(door.destination)
-        self.dungeon.currentRoom:unlockDoorTo(previousDestination)
-    end
+    -- when a door is unlocked, spawn its destination room and unlock the related door there
+    local destinationRoom = self.dungeon:roomAt(door.destination)
+    destinationRoom:unlockDoorTo(door.room.destination)
   end
   
   if message == 'mouse_up' then
     local position = data
     
-    print('Mouse up world: '..tostring(position))
+    -- Find the room the player is in
+    local playerDest = self.dungeon:destinationForPosition(self.player.position)
     
-    -- Are player and click in current room? 
-    if self.dungeon.currentRoom:containsPoint(self.player.position) and self.dungeon.currentRoom:containsPoint(position) then
-      -- Yes. Get a path to the click location
-      local path = self.dungeon.currentRoom:pathBetweenPoints(self.player.position, position)
+    -- and the room the click is in
+    local clickDest = self.dungeon:destinationForPosition(position)
 
+    if playerDest.id == clickDest.id then
+      -- player and click location are in the same room we can use a single path
+      local path = self.dungeon.currentRoom:pathBetweenPoints(self.player.position, position)
       if path ~= nil then
         self.player:followPath(path)
-      else
-        print 'No path'
       end
-
     else
+      
+      
+      
+      -- local path = self.dungeon.currentRoom:pathBetweenPoints(self.player.position, position)
+      
+      
+      -- Find a path from the player to the first door and a path from the second door to the click location
       -- No. find the adjoining room.
       print('player or point not in this room')
       -- If found, get a path to the door, then get a path form the door to the click location
