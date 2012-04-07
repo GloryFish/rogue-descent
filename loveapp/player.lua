@@ -49,7 +49,7 @@ function Player:update(dt)
     
     local distance = target - self.position
     distance = distance:len()
-    if distance < 3 then -- we've reached a node in the path
+    if distance < 5 then -- we've reached a node in the path
       table.remove(self.path, 1)
     end
   end
