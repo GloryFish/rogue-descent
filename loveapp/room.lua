@@ -132,9 +132,11 @@ function Room:generate()
   table.insert(self.platforms, vector(self.position.x + self.size.x - (32 * 5) + 16, self.position.y + self.size.y - 32))
   
   -- Add monsters
-  for i = 1, 3 do
-    local monster = Monster(self.destination.level)
-    table.insert(self.objects, monster)    
+  if self.level ~= 1 then -- First room has no monsters
+    for i = 1, 3 do
+      local monster = Monster(self.destination.level)
+      table.insert(self.objects, monster)    
+    end
   end
   
   -- Add items
