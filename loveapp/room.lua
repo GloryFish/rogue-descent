@@ -14,6 +14,7 @@ require 'spritesheets'
 require 'destination'
 require 'door'
 require 'monster'
+require 'astar'
 
 Room = class('Room')
 
@@ -33,6 +34,8 @@ function Room:initialize(destination, position, size)
   
   self.tileSize = 16
   self.scale = 2
+  
+  self.astar = AStar(self)
   
   self:generate()
 end
@@ -165,6 +168,17 @@ function Room:generate()
   end
 end
 
+-- Returns true if the room contains the provided world point
+function Room:containsPoint(point)
+  assert(vector.isvector(point), 'point must be a vector')
+  
+  return point.x >= self.position.x and
+         point.x <= self.position.x + self.size.x and
+         point.y >= self.position.y and
+         point.y <= self.position.y + self.size.y
+  
+end
+
 function Room:toWorldCoords(point)
   local world = vector(
     (point.x - 1) * self.tileSize * self.scale,
@@ -185,6 +199,33 @@ function Room:toWorldCoordsCenter(point)
   return world
 end
 
+-- Returns a table of vectors() between two world points within
+-- the room
+function Room:pathBetweenPoints(pointA, pointB)
+  assert(self:containsPoint(pointA), 'pointA must be within this room')
+  assert(self:containsPoint(pointB), 'pointB must be within this room')
+  
+  local tileA = self:toTileCoords(pointA)
+  local tileB = self:toTileCoords(pointB)
+  
+  local nodePath = self.astar:findPath(tileA, tileB)
+  if nodePath == nil then
+    return nil
+  end
+
+  local path = {}
+
+  for i, node in ipairs(nodePath:getNodes()) do
+    local worldPoint = self:toWorldCoords(node.location)
+    table.insert(path, worldPoint)
+  end
+
+  print('found nodePath with '..tostring(#path)..' nodes')
+
+  return path  
+end
+
+
 -- Converts a world point to local tile coordinates
 function Room:toTileCoords(point)
   local loc = point - self.position
@@ -196,6 +237,13 @@ end
 
 function Room:tilePointIsWalkable(tile)
   assert(vector.isvector(tile), 'tile must be a vector')
+  
+  if tile.x < 1 or 
+     tile.y < 1 or
+     tile.x > #self.walkable or
+     tile.y > #self.walkable[1] then
+     return false
+  end
   
   if self.walkable[tile.x] ~= nil then
     return self.walkable[tile.x][tile.y]
@@ -273,3 +321,75 @@ function Room:draw()
   
 end
 
+
+-- AStar MapHandler
+
+-- Location should be a point in tile coordinates
+function Room:getNode(location)
+  assert(vector.isvector(location), 'location must be a vector')
+  
+  if not self:tilePointIsWalkable(location) then
+    return nil;
+  end
+  
+  return Node(location, 10, location.y * #self.tiles + location.x)
+end
+
+
+function Room:getAdjacentNodes(curnode, dest)
+  -- Given a node, return a table containing all adjacent nodes
+  -- The code here works for a 2d tile-based game but could be modified
+  -- for other types of node graphs
+  local result = {}
+  local cl = curnode.location
+  local dl = dest
+  
+  local n = false
+  
+  n = self:_handleNode(cl.x + 1, cl.y, curnode, dl.x, dl.y)
+  if n then
+    table.insert(result, n)
+  end
+
+  n = self:_handleNode(cl.x - 1, cl.y, curnode, dl.x, dl.y)
+  if n then
+    table.insert(result, n)
+  end
+
+  n = self:_handleNode(cl.x, cl.y + 1, curnode, dl.x, dl.y)
+  if n then
+    table.insert(result, n)
+  end
+
+  n = self:_handleNode(cl.x, cl.y - 1, curnode, dl.x, dl.y)
+  if n then
+    table.insert(result, n)
+  end
+  
+  return result
+end
+
+function Room:locationsAreEqual(a, b)
+  return a.x == b.x and a.y == b.y
+end
+
+function Room:_handleNode(x, y, fromnode, destx, desty)
+  -- Fetch a Node for the given location and set its parameters
+  local loc = vector(x, y)
+  
+  local n = self:getNode(loc)
+  
+  if n ~= nil then
+    local dx = math.max(x, destx) - math.min(x, destx)
+    local dy = math.max(y, desty) - math.min(y, desty)
+    local emCost = dx + dy
+    
+    n.mCost = n.mCost + fromnode.mCost
+    n.score = n.mCost + emCost
+    n.parent = fromnode
+    
+    return n
+  end
+  
+  return nil
+end

@@ -29,6 +29,7 @@ function scene:enter(pre)
 	self.player.position = self.dungeon.currentRoom.position + vector(roomCenter.x, 287)
 	self.camera.position = roomCenter
 	Notifier:listenForMessage('door_selected', self)
+	Notifier:listenForMessage('mouse_up', self)
 end
 
 function scene:keypressed(key, unicode)
@@ -66,8 +67,31 @@ function scene:receiveMessage(message, data)
         local path = self.dungeon:pathBetweenAdjacentDestinations(previousDestination, door.destination)
         self.player:followPath(path)
     end
-      
   end
+  
+  if message == 'mouse_up' then
+    local position = data
+    
+    print('Mouse up world: '..tostring(position))
+    
+    -- Are player and click in current room? 
+    if self.dungeon.currentRoom:containsPoint(self.player.position) and self.dungeon.currentRoom:containsPoint(position) then
+      -- Yes. Get a path to the click location
+      local path = self.dungeon.currentRoom:pathBetweenPoints(self.player.position, position)
+
+      if path ~= nil then
+        self.player:followPath(path)
+      else
+        print 'No path'
+      end
+
+    else
+      -- No. find the adjoining room.
+      print('player or point not in this room')
+      -- If found, get a path to the door, then get a path form the door to the click location
+    end
+  end
+  
 end
 
 function scene:update(dt)
