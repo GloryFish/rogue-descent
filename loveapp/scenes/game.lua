@@ -25,6 +25,7 @@ function scene:enter(pre)
 	self.camera.deadzone = 0
 	self.logger = Logger()
 	
+	local roomCenter = vector(self.dungeon.currentRoom.size.x / 2, self.dungeon.currentRoom.size.y / 2)
 	self.player.position = vector(336, 272)
 	self.camera.position = roomCenter
 	Notifier:listenForMessage('door_selected', self)
