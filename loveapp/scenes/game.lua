@@ -25,8 +25,7 @@ function scene:enter(pre)
 	self.camera.deadzone = 0
 	self.logger = Logger()
 	
-	local roomCenter = vector(self.dungeon.currentRoom.size.x / 2, self.dungeon.currentRoom.size.y / 2)
-	self.player.position = self.dungeon.currentRoom.position + vector(roomCenter.x, 287)
+	self.player.position = vector(336, 272)
 	self.camera.position = roomCenter
 	Notifier:listenForMessage('door_selected', self)
 	Notifier:listenForMessage('mouse_up', self)
@@ -63,9 +62,6 @@ function scene:receiveMessage(message, data)
         local previousDestination = self.dungeon.currentRoom.destination
         self.dungeon:setCurrentRoom(door.destination)
         self.dungeon.currentRoom:unlockDoorTo(previousDestination)
-        
-        local path = self.dungeon:pathBetweenAdjacentDestinations(previousDestination, door.destination)
-        self.player:followPath(path)
     end
   end
   
@@ -103,6 +99,8 @@ function scene:update(dt)
   self.logger:addLine('World: '..tostring(world))
   local tile = self.dungeon.currentRoom:toTileCoords(world)
   self.logger:addLine('Tile: '..tostring(tile))
+  local center = self.dungeon.currentRoom:toWorldCoordsCenter(tile)
+  self.logger:addLine('Tile Center: '..tostring(center))
   
   if self.dungeon.currentRoom:tilePointIsWalkable(tile) then
     self.logger:addLine('Walkable')

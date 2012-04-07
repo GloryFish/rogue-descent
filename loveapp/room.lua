@@ -190,8 +190,8 @@ end
 
 function Room:toWorldCoordsCenter(point)
   local world = vector(
-    point.x * self.tileSize * self.scale,
-    point.y * self.tileSize * self.scale
+    (point.x - 1) * self.tileSize * self.scale,
+    (point.y - 1) * self.tileSize * self.scale
   )
   
   world = world + vector(self.tileSize * self.scale / 2, self.tileSize * self.scale / 2)
@@ -216,7 +216,7 @@ function Room:pathBetweenPoints(pointA, pointB)
   local path = {}
 
   for i, node in ipairs(nodePath:getNodes()) do
-    local worldPoint = self:toWorldCoords(node.location)
+    local worldPoint = self:toWorldCoordsCenter(node.location)
     table.insert(path, worldPoint)
   end
 
