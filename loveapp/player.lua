@@ -16,7 +16,7 @@ Player = class('Player')
 
 function Player:initialize()
   self.position = vector(0, 0)
-  self.offset = vector(-8, -32)
+  self.offset = vector(-8, -16)
   self.path = {}
   self.speed = 200
 end
