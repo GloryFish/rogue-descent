@@ -78,9 +78,6 @@ function Dungeon:roomAt(destination)
     local position = self:positionForRoomAtDestination(destination)
     room = Room(destination, position, self.roomSize)
     self.rooms[destination.id] = room 
-    print('Created new room')
-  else
-    print('Found existing room')
   end
   
   return room
