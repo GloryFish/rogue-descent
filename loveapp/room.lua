@@ -35,6 +35,8 @@ function Room:initialize(destination, position, size)
   self.tileSize = 16
   self.scale = 2
   
+  self.visible = false
+  
   self.astar = AStar(self)
   
   self:generate()
@@ -166,6 +168,11 @@ function Room:generate()
     object.position = vector(x + (object.size.x / 2), self.position.y + 285)
     x = x + object.size.x + padding
   end
+  
+  -- Set visibility
+  if self.level == 1 then
+    self.visible = true
+  end
 end
 
 -- Returns true if the room contains the provided world point
@@ -194,7 +201,7 @@ function Room:toWorldCoordsCenter(point)
     (point.y - 1) * self.tileSize * self.scale
   )
   
-  world = world + vector(self.tileSize * self.scale / 2, self.tileSize * self.scale / 2)
+  world = world + vector(self.tileSize * self.scale / 2, self.tileSize * self.scale / 2) + self.position
   
   return world
 end
@@ -259,25 +266,37 @@ end
 function Room:update(dt)
 end
 
-function Room:unlockDoorTo(destination)
+function Room:getDoorTo(destination)
   for key, door in pairs(self.doors) do
     if door.destination == destination then
-      if door.locked then
-        door.locked = false
-        Notifier:postMessage('door_unlocked', door)
-      end
-      
-      local coords = self:toTileCoords(door.center)
-
-      print(tostring(door.center))
-      
-      print(tostring(coords))
-      self.walkable[coords.x][coords.y] = true
+      return door
     end
   end
+  return nil
+end
+
+function Room:unlockDoorTo(destination)
+  assert(instanceOf(Destination, destination), 'destination must be a Destination object')
+  
+  local door = self:getDoorTo(destination)
+  if door == nil then
+    return
+  end
+  
+  if door.locked then
+    door.locked = false
+    Notifier:postMessage('door_unlocked', door)
+  end
+
+  local coords = self:toTileCoords(door.center)
+  self.walkable[coords.x][coords.y] = true
 end
 
 function Room:draw()
+  if not self.visible then
+    return
+  end
+  
   for x = 1, #self.tiles do
     for y = 1, #self.tiles[x] do
       local quad_bg = spritesheet.quads[self.tiles[x][y]]

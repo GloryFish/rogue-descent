@@ -55,6 +55,7 @@ function scene:receiveMessage(message, data)
     
     -- when a door is unlocked, spawn its destination room and unlock the related door there
     local destinationRoom = self.dungeon:roomAt(door.destination)
+    destinationRoom.visible = true
     destinationRoom:unlockDoorTo(door.room.destination)
   end
   
@@ -63,27 +64,37 @@ function scene:receiveMessage(message, data)
     
     -- Find the room the player is in
     local playerDest = self.dungeon:destinationForPosition(self.player.position)
+    local playerRoom = self.dungeon:roomAt(playerDest)
     
     -- and the room the click is in
     local clickDest = self.dungeon:destinationForPosition(position)
 
     if playerDest.id == clickDest.id then
       -- player and click location are in the same room we can use a single path
-      local path = self.dungeon.currentRoom:pathBetweenPoints(self.player.position, position)
+      local path = playerRoom:pathBetweenPoints(self.player.position, position)
       if path ~= nil then
         self.player:followPath(path)
       end
     else
+      -- Right now, assume the rooms are adjacent
+      local clickRoom = self.dungeon:roomAt(clickDest)
+    
+      -- Get path from position to door
+      local playerDoor = playerRoom:getDoorTo(clickRoom.destination)
+      local path = playerRoom:pathBetweenPoints(self.player.position, playerDoor.center)
       
+      -- Get path from door to click
+      local clickDoor = clickRoom:getDoorTo(playerRoom.destination)
+      local secondPath = clickRoom:pathBetweenPoints(clickDoor.center, position)
+
+      if path ~= nil and secondPath ~= nil then
+        for i, location in ipairs(secondPath) do
+          table.insert(path, location)
+        end
+        
+        self.player:followPath(path)
+      end
       
-      
-      -- local path = self.dungeon.currentRoom:pathBetweenPoints(self.player.position, position)
-      
-      
-      -- Find a path from the player to the first door and a path from the second door to the click location
-      -- No. find the adjoining room.
-      print('player or point not in this room')
-      -- If found, get a path to the door, then get a path form the door to the click location
     end
   end
   
@@ -100,6 +111,9 @@ function scene:update(dt)
   self.logger:addLine('Tile: '..tostring(tile))
   local center = self.dungeon.currentRoom:toWorldCoordsCenter(tile)
   self.logger:addLine('Tile Center: '..tostring(center))
+  
+  local playerDest = self.dungeon:destinationForPosition(self.player.position)
+  self.dungeon.currentRoom = self.dungeon:roomAt(playerDest)
   
   if self.dungeon.currentRoom:tilePointIsWalkable(tile) then
     self.logger:addLine('Walkable')

@@ -32,7 +32,9 @@ end
 
 function Dungeon:destinationForPosition(position)
   local level = math.floor(position.y / self.roomSize.y) + 1
-  local index = math.floor(position.x / self.roomSize.x) + 1
+
+  local x = position.x + (self.roomSize.x * level / 2) - (self.roomSize.x / 2)
+  local index = math.floor(x / self.roomSize.x) + 1
   
   if level < 1 then
     return nil
@@ -69,6 +71,8 @@ function Dungeon:setCurrentRoom(destination)
 end
 
 function Dungeon:roomAt(destination)
+  assert(instanceOf(Destination, destination), 'destination must be a Destination object')
+  
   local room = self.rooms[destination.id]
   if room == nil then
     local position = self:positionForRoomAtDestination(destination)
