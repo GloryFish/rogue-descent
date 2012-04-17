@@ -9,10 +9,13 @@
 require 'middleclass'
 require 'vector'
 require 'room'
+require 'astar'
 
 Dungeon = class('Dungeon')
 
 function Dungeon:initialize()
+  self.astar = AStar(self)
+  
   self:reset()
 end
 
@@ -31,6 +34,8 @@ function Dungeon:idForLevelAndIndex(level, index)
 end
 
 function Dungeon:destinationForPosition(position)
+  assert(vector.isvector(position), 'position must be a vector')
+  
   local level = math.floor(position.y / self.roomSize.y) + 1
 
   local x = position.x + (self.roomSize.x * level / 2) - (self.roomSize.x / 2)
@@ -51,6 +56,26 @@ function Dungeon:destinationForPosition(position)
   return Destination(level, index)
 end
 
+
+function Dungeon:positionIsWalkable(position)
+  assert(vector.isvector(position), 'position must be a vector')
+  
+  local destination = self:destinationForPosition(position)
+  
+  if destination == nil then
+    return false
+  end
+  
+  local room = self.rooms[destination.id]
+  if room == nil then
+    return false
+  end
+  
+  local tile = room:toTileCoords(position)
+  
+  return room:tilePointIsWalkable(tile)
+end
+
 function Dungeon:positionForRoomAtDestination(destination)
   assert(instanceOf(Destination, destination), 'destination must be a Destination object')
   local level = destination.level
@@ -58,6 +83,40 @@ function Dungeon:positionForRoomAtDestination(destination)
 
   return vector((-level * self.roomSize.x / 2) + (self.roomSize.x / 2) + (self.roomSize.x * index) - self.roomSize.x,
                 level * self.roomSize.y - self.roomSize.y)
+end
+
+function Dungeon:pathBetweenPoints(pointA, pointB)
+  assert(vector.isvector(pointA), 'pointA must be a vector')
+  assert(vector.isvector(pointB), 'pointB must be a vector')
+  
+  -- No path if start and destination are not walkable
+  if not self:positionIsWalkable(pointA) or not self:positionIsWalkable(pointB) then
+    return nil
+  end
+  
+  local destA = self:destinationForPosition(pointA)
+  local destB = self:destinationForPosition(pointB)
+  
+
+  local nodePath = self.astar:findPath(destA, destB)
+  if nodePath == nil then
+   return nil
+  end
+
+  local path = {}
+
+  for i, node in ipairs(nodePath:getNodes()) do
+   -- local worldPoint = self:toWorldCoordsCenter(node.location)
+   table.insert(path, node.location)
+  end
+
+  print('found dungeon nodePath with '..tostring(#path)..' nodes')
+  for i, destination in ipairs(path) do
+   print(destination)
+  end
+
+  return path
+  
 end
 
 function Dungeon:setCurrentRoom(destination)
@@ -113,4 +172,56 @@ function Dungeon:draw()
   for index, destination in ipairs(self:getNeighborhood(self.currentRoom.destination)) do
     self.rooms[destination.id]:draw()
   end
+end
+
+-- AStar MapHandler
+
+-- Location should be a point in tile coordinates
+function Dungeon:getNode(destination)
+  assert(instanceOf(Destination, destination), 'destination must be a Destination object')
+  
+  if self.rooms[destination.id] == nil then
+    return nil
+  end
+  
+  return Node(destination, 10, destination.id)
+end
+
+
+function Dungeon:getAdjacentNodes(curnode, dest)
+  local result = {}
+  
+  for i, neighbor in ipairs(curnode.location:getNeighbors()) do
+    n = self:_handleNode(neighbor.level, neighbor.index, curnode, dest.level, dest.index)
+    if n then
+      table.insert(result, n)
+    end
+  end
+  
+  return result
+end
+
+function Dungeon:locationsAreEqual(a, b)
+  return a.id == b.id
+end
+
+function Dungeon:_handleNode(level, index, fromnode, destlevel, destindex)
+  -- Fetch a Node for the given location and set its parameters
+  local dest = Destination(level, index)
+  
+  local n = self:getNode(dest)
+  
+  if n ~= nil then
+    local dlevel = math.max(level, destlevel) - math.min(level, destlevel)
+    local dindex = math.max(index, destindex) - math.min(index, destindex)
+    local emCost = dlevel + dindex
+    
+    n.mCost = n.mCost + fromnode.mCost
+    n.score = n.mCost + emCost
+    n.parent = fromnode
+    
+    return n
+  end
+  
+  return nil
 end

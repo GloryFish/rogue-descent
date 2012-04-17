@@ -62,40 +62,47 @@ function scene:receiveMessage(message, data)
   if message == 'mouse_up' then
     local position = data
     
-    -- Find the room the player is in
-    local playerDest = self.dungeon:destinationForPosition(self.player.position)
-    local playerRoom = self.dungeon:roomAt(playerDest)
-    
-    -- and the room the click is in
-    local clickDest = self.dungeon:destinationForPosition(position)
-
-    if playerDest.id == clickDest.id then
-      -- player and click location are in the same room we can use a single path
-      local path = playerRoom:pathBetweenPoints(self.player.position, position)
+    if self.dungeon:positionIsWalkable(position) then
+      local path = self.dungeon:pathBetweenPoints(self.player.position, position)
       if path ~= nil then
-        self.player:followPath(path)
+        -- self.player:followPath(path)
       end
-    else
-      -- Right now, assume the rooms are adjacent
-      local clickRoom = self.dungeon:roomAt(clickDest)
-    
-      -- Get path from position to door
-      local playerDoor = playerRoom:getDoorTo(clickRoom.destination)
-      local path = playerRoom:pathBetweenPoints(self.player.position, playerDoor.center)
-      
-      -- Get path from door to click
-      local clickDoor = clickRoom:getDoorTo(playerRoom.destination)
-      local secondPath = clickRoom:pathBetweenPoints(clickDoor.center, position)
-
-      if path ~= nil and secondPath ~= nil then
-        for i, location in ipairs(secondPath) do
-          table.insert(path, location)
-        end
-        
-        self.player:followPath(path)
-      end
-      
     end
+    
+    -- -- Find the room the player is in
+    --    local playerDest = self.dungeon:destinationForPosition(self.player.position)
+    --    local playerRoom = self.dungeon:roomAt(playerDest)
+    --    
+    --    -- and the room the click is in
+    --    local clickDest = self.dungeon:destinationForPosition(position)
+    -- 
+    --    if playerDest.id == clickDest.id then
+    --      -- player and click location are in the same room we can use a single path
+    --      local path = playerRoom:pathBetweenPoints(self.player.position, position)
+    --      if path ~= nil then
+    --        self.player:followPath(path)
+    --      end
+    --    else
+    --      -- Right now, assume the rooms are adjacent
+    --      local clickRoom = self.dungeon:roomAt(clickDest)
+    --    
+    --      -- Get path from position to door
+    --      local playerDoor = playerRoom:getDoorTo(clickRoom.destination)
+    --      local path = playerRoom:pathBetweenPoints(self.player.position, playerDoor.center)
+    --      
+    --      -- Get path from door to click
+    --      local clickDoor = clickRoom:getDoorTo(playerRoom.destination)
+    --      local secondPath = clickRoom:pathBetweenPoints(clickDoor.center, position)
+    -- 
+    --      if path ~= nil and secondPath ~= nil then
+    --        for i, location in ipairs(secondPath) do
+    --          table.insert(path, location)
+    --        end
+    --        
+    --        self.player:followPath(path)
+    --      end
+    --      
+    --    end
   end
   
 end
@@ -115,7 +122,7 @@ function scene:update(dt)
   local playerDest = self.dungeon:destinationForPosition(self.player.position)
   self.dungeon.currentRoom = self.dungeon:roomAt(playerDest)
   
-  if self.dungeon.currentRoom:tilePointIsWalkable(tile) then
+  if self.dungeon:positionIsWalkable(world) then
     self.logger:addLine('Walkable')
   end
   
@@ -144,6 +151,16 @@ function scene:draw()
   self.player:draw()
 
   love.graphics.draw(spritesheet.batch)
+  
+  if debug then
+    -- Draw player path
+    for i, location in ipairs(self.player.path) do
+      colors.yellow:set()
+      love.graphics.circle('fill', location.x, location.y, 10)
+    end
+    
+  end
+  
   
   self.camera:unapply()
   
