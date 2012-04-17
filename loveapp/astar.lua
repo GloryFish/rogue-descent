@@ -134,6 +134,11 @@ function AStar:findPath(fromlocation, tolocation)
   local nextNode = nil
 
   if fnode ~= nil then
+    -- Check to see if we are already at the destination
+    if self.mh:locationsAreEqual(fromlocation, tolocation) then
+      return self:_tracePath(fnode)
+    end
+    
     self.open[fnode.lid] = fnode
     nextNode = fnode
   end  
