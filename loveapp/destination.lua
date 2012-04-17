@@ -37,16 +37,6 @@ function Destination:getNeighbors()
       table.insert(neighbors, Destination(self.level - 1, self.index))
     end
   end
-  
-  -- l
-  if self.index - 1 > 0 then
-    table.insert(neighbors, Destination(self.level, self.index - 1))
-  end
-  
-  -- r
-  if self.index + 1 <= self.level then
-    table.insert(neighbors, Destination(self.level, self.index + 1))
-  end
 
   -- ll
   table.insert(neighbors, Destination(self.level + 1, self.index))
