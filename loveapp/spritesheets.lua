@@ -23,7 +23,7 @@ function Spritesheet:initialize(name)
     self.quads[frame.name] = love.graphics.newQuad(frame.rect.x, frame.rect.y, frame.rect.width, frame.rect.height, self.texture:getWidth(), self.texture:getHeight())
   end
   
-  self.batch = love.graphics.newSpriteBatch(self.texture, 5000)
+  self.batch = love.graphics.newSpriteBatch(self.texture, 10000)
 end
 
 
