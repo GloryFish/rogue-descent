@@ -88,10 +88,7 @@ function AStar:_tracePath(n)
   
   table.insert(nodes, 1, n)
   
-  while true do
-    if p.parent == nil then
-      break
-    end
+  while p ~= nil do
     table.insert(nodes, 1, p)
     p = p.parent
   end
