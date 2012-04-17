@@ -104,45 +104,35 @@ function Room:generate()
   -- ul
   if self.destination.index > 1 and self.destination.level > 1 then
     local pos = vector(self.position.x + 32 * 5, self.position.y)
-    self.doors.ul = Door(pos, self, Destination(self.destination.level - 1, self.destination.index - 1))
-  else
-    self.doors.ul = nil
-  end
+    table.insert(self.doors, Door(pos, self, Destination(self.destination.level - 1, self.destination.index - 1)))
     
-  -- ur
-  if self.destination.index < self.destination.level and self.destination.level > 1 then
-    local pos = vector(self.position.x + self.size.x - 32 * 6, self.position.y)
-    self.doors.ur = Door(pos, self, Destination(self.destination.level - 1, self.destination.index))
-  else
-    self.doors.ur = nil
-  end
-  
-  -- ll
-  local pos = vector(self.position.x + 32 * 4, self.position.y + self.size.y - 32)
-  self.doors.ll = Door(pos, self, Destination(self.destination.level + 1, self.destination.index))
-  
-  -- lr
-  pos = vector(self.position.x + self.size.x - 32 * 5, self.position.y + self.size.y - 32)
-  self.doors.lr = Door(pos, self, Destination(self.destination.level + 1, self.destination.index + 1))
-
-  -- Add ladders
-  if self.doors.ul ~= nil then
+    -- Add ladder
     for y = 2, height - 1 do
       self.scenery[6][y] = 'ladder_1'
       self.walkable[6][y] = true
     end
   end
-  if self.doors.ur ~= nil then
+    
+  -- ur
+  if self.destination.index < self.destination.level and self.destination.level > 1 then
+    local pos = vector(self.position.x + self.size.x - 32 * 6, self.position.y)
+    table.insert(self.doors, Door(pos, self, Destination(self.destination.level - 1, self.destination.index)))
+
+    -- Add ladder
     for y = 2, height - 1 do
       self.scenery[15][y] = 'ladder_1'
       self.walkable[15][y] = true
     end
+
   end
   
+  -- ll
+  local pos = vector(self.position.x + 32 * 4, self.position.y + self.size.y - 32)
+  table.insert(self.doors, Door(pos, self, Destination(self.destination.level + 1, self.destination.index)))
   
-  -- Add platforms
-  table.insert(self.platforms, vector(self.position.x + 16 + 32 * 5, self.position.y + self.size.y - 32))
-  table.insert(self.platforms, vector(self.position.x + self.size.x - (32 * 5) + 16, self.position.y + self.size.y - 32))
+  -- lr
+  pos = vector(self.position.x + self.size.x - 32 * 5, self.position.y + self.size.y - 32)
+  table.insert(self.doors, Door(pos, self, Destination(self.destination.level + 1, self.destination.index + 1)))
   
   -- Add monsters
   if self.level ~= 1 then -- First room has no monsters
@@ -217,6 +207,7 @@ function Room:pathBetweenPoints(pointA, pointB)
   
   local nodePath = self.astar:findPath(tileA, tileB)
   if nodePath == nil then
+    print('room faile dot find path between: '..tostring(pointA).. ' and '..tostring(pointB))
     return nil
   end
 
@@ -227,7 +218,12 @@ function Room:pathBetweenPoints(pointA, pointB)
     table.insert(path, worldPoint)
   end
 
-  print('found nodePath with '..tostring(#path)..' nodes')
+  if debug then
+    print('found room path with '..tostring(#path)..' nodes')
+    for i, node in ipairs(path) do
+      print(node)
+    end
+  end
 
   return path  
 end
@@ -266,8 +262,12 @@ end
 function Room:update(dt)
 end
 
+function Room:getDoors()
+  return self.doors
+end
+
 function Room:getDoorTo(destination)
-  for key, door in pairs(self.doors) do
+  for i, door in ipairs(self.doors) do
     if door.destination == destination then
       return door
     end
@@ -318,7 +318,7 @@ function Room:draw()
     end
   end
   
-  for name, door in pairs(self.doors) do
+  for i, door in ipairs(self.doors) do
     door:draw()
   end
 
@@ -326,7 +326,7 @@ function Room:draw()
     object:draw()
   end
   
-  if debug then
+  if false then
     for x = 1, #self.tiles do
       for y = 1, #self.tiles[x] do
         if not self.walkable[x][y] then
