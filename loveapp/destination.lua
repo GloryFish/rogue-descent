@@ -25,6 +25,38 @@ function Destination:getId(level, index)
   return ((self.level - 1) * self.level / 2) + self.index
 end
 
+-- Return a table containing valid neighbors for the destination. May not be valid rooms. 
+function Destination:getNeighbors()
+  local neighbors = {}
+
+  if self.level - 1 > 0 then
+    if self.index - 1 > 0 then -- ul
+      table.insert(neighbors, Destination(self.level - 1, self.index - 1))
+    end
+    if self.index <= self.level - 1 then -- ur
+      table.insert(neighbors, Destination(self.level - 1, self.index))
+    end
+  end
+  
+  -- l
+  if self.index - 1 > 0 then
+    table.insert(neighbors, Destination(self.level, self.index - 1))
+  end
+  
+  -- r
+  if self.index + 1 <= self.level then
+    table.insert(neighbors, Destination(self.level, self.index + 1))
+  end
+
+  -- ll
+  table.insert(neighbors, Destination(self.level + 1, self.index))
+
+  -- lr
+  table.insert(neighbors, Destination(self.level + 1, self.index + 1))
+  
+  return neighbors
+end
+
 function Destination:__tostring()
 	return "Destination ("..tonumber(self.level)..","..tonumber(self.index)..","..tonumber(self.id)..")"
 end
