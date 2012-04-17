@@ -65,7 +65,7 @@ function scene:receiveMessage(message, data)
     if self.dungeon:positionIsWalkable(position) then
       local path = self.dungeon:pathBetweenPoints(self.player.position, position)
       if path ~= nil then
-        -- self.player:followPath(path)
+        self.player:followPath(path)
       end
     end
     

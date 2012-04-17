@@ -97,6 +97,10 @@ function Dungeon:pathBetweenPoints(pointA, pointB)
   local destA = self:destinationForPosition(pointA)
   local destB = self:destinationForPosition(pointB)
   
+  -- if start and end destinations are the same, skip broadphase
+  if destA.id == destB.id then
+    return self.rooms[destA.id]:pathBetweenPoints(pointA, pointB)
+  end
 
   local nodePath = self.astar:findPath(destA, destB)
   if nodePath == nil then
