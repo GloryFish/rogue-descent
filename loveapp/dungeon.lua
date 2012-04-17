@@ -107,19 +107,73 @@ function Dungeon:pathBetweenPoints(pointA, pointB)
    return nil
   end
 
-  local path = {}
+  local broadpath = {}
 
   for i, node in ipairs(nodePath:getNodes()) do
    -- local worldPoint = self:toWorldCoordsCenter(node.location)
-   table.insert(path, node.location)
+   table.insert(broadpath, node.location)
   end
 
-  print('found dungeon nodePath with '..tostring(#path)..' nodes')
-  for i, destination in ipairs(path) do
-   print(destination)
+  if debug then
+    print('found dungeon path with '..tostring(#broadpath)..' nodes')
+    for i, destination in ipairs(broadpath) do
+     print(destination)
+    end
+  end
+  
+  -- Perform narrowphase pathfinding between each room in the broadpath
+  local narrowpath = {}
+
+  local startPosition = pointA
+
+  for i, node in ipairs(broadpath) do
+    local currentRoom = self.rooms[node.id]
+
+    local nextNode = broadpath[i + 1]
+    if nextNode ~= nil then
+      -- If there is a next room
+      local nextRoom = self.rooms[nextNode.id]
+      local currentDoor = currentRoom:getDoorTo(nextRoom.destination)
+      
+      if currentDoor == nil then
+        print('currentDoor is nil at 142')
+        return nil
+      end
+      
+      -- Find path from start position to the position of the door to the next room
+      local path = currentRoom:pathBetweenPoints(startPosition, currentDoor.center)
+    
+      if path == nil then
+        print('path is nil at 143')
+        return nil
+      end
+    
+      -- Add the newly found path nodes
+      for i, item in ipairs(path) do
+        table.insert(narrowpath, item)
+      end
+    
+      local nextDoor = nextRoom:getDoorTo(currentRoom.destination)
+      
+      startPosition = nextDoor.center
+    else
+      -- Else
+        -- Find a path from start position to end position
+        local path = currentRoom:pathBetweenPoints(startPosition, pointB)
+
+        if path == nil then
+          print('path is nil at 161')
+          return nil
+        end
+
+        -- Add the newly found path nodes
+        for i, item in ipairs(path) do
+          table.insert(narrowpath, item)
+        end
+    end
   end
 
-  return path
+  return narrowpath
   
 end
 
@@ -153,8 +207,10 @@ function Dungeon:update(dt)
 end
 
 -- Gives a set of destinations (that actually have rooms) in an area around a given destination
-function Dungeon:getNeighborhood(destination)
- local spread = 3
+function Dungeon:getNeighborhood(destination, spread)
+ if spread == nil then
+   spread = 3
+ end
  
  local neighborhood = {}
  
@@ -173,7 +229,7 @@ end
 
 
 function Dungeon:draw()
-  for index, destination in ipairs(self:getNeighborhood(self.currentRoom.destination)) do
+  for index, destination in ipairs(self:getNeighborhood(self.currentRoom.destination), 1) do
     self.rooms[destination.id]:draw()
   end
 end
@@ -195,10 +251,16 @@ end
 function Dungeon:getAdjacentNodes(curnode, dest)
   local result = {}
   
-  for i, neighbor in ipairs(curnode.location:getNeighbors()) do
-    n = self:_handleNode(neighbor.level, neighbor.index, curnode, dest.level, dest.index)
-    if n then
-      table.insert(result, n)
+  -- Process rooms accordign to door connections
+  local currentRoom = self.rooms[curnode.location.id]
+  
+  for i, door in ipairs(currentRoom:getDoors()) do
+    if not door.locked then
+      local neighbor = door.destination
+      n = self:_handleNode(neighbor.level, neighbor.index, curnode, dest.level, dest.index)
+      if n then
+        table.insert(result, n)
+      end
     end
   end
   
