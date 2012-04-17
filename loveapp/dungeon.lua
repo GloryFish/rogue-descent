@@ -114,7 +114,7 @@ function Dungeon:pathBetweenPoints(pointA, pointB)
    table.insert(broadpath, node.location)
   end
 
-  if debug then
+  if isDebug then
     print('found dungeon path with '..tostring(#broadpath)..' nodes')
     for i, destination in ipairs(broadpath) do
      print(destination)
@@ -229,7 +229,7 @@ end
 
 
 function Dungeon:draw()
-  for index, destination in ipairs(self:getNeighborhood(self.currentRoom.destination), 1) do
+  for index, destination in ipairs(self:getNeighborhood(self.currentRoom.destination, 2)) do
     self.rooms[destination.id]:draw()
   end
 end

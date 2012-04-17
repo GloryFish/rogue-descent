@@ -64,7 +64,7 @@ function Player:draw()
                          0,
                          2,
                          2)
-  if debug then
+  if isDebug then
      -- Draw path
      for i, location in ipairs(self.path) do
        local a = self.position

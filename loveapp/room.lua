@@ -218,7 +218,7 @@ function Room:pathBetweenPoints(pointA, pointB)
     table.insert(path, worldPoint)
   end
 
-  if debug then
+  if isDebug then
     print('found room path with '..tostring(#path)..' nodes')
     for i, node in ipairs(path) do
       print(node)
@@ -297,10 +297,10 @@ function Room:draw()
     return
   end
   
-  for x = 1, #self.tiles do
-    for y = 1, #self.tiles[x] do
-      local quad_bg = spritesheet.quads[self.tiles[x][y]]
-      local quad_scenery = spritesheet.quads[self.scenery[x][y]]
+  local tiles = self.tiles
+  for x = 1, #tiles do
+    for y = 1, #tiles[x] do
+      local quad_bg = spritesheet.quads[tiles[x][y]]
 
       spritesheet.batch:addq(quad_bg, 
                               self.position.x + ((x - 1) * self.tileSize * self.scale), 
@@ -308,13 +308,18 @@ function Room:draw()
                               0,
                               self.scale,
                               self.scale)
-                              
-      spritesheet.batch:addq(quad_scenery, 
-                              self.position.x + ((x - 1) * self.tileSize * self.scale), 
-                              self.position.y + ((y - 1) * self.tileSize * self.scale),
-                              0,
-                              self.scale,
-                              self.scale)
+
+      local scenery_id = self.scenery[x][y]
+      if scenery_id ~= 'empty' then
+        local quad_scenery = spritesheet.quads[scenery_id]
+
+        spritesheet.batch:addq(quad_scenery, 
+                                self.position.x + ((x - 1) * self.tileSize * self.scale), 
+                                self.position.y + ((y - 1) * self.tileSize * self.scale),
+                                0,
+                                self.scale,
+                                self.scale)
+      end
     end
   end
   

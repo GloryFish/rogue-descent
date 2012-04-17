@@ -152,7 +152,7 @@ function scene:draw()
 
   love.graphics.draw(spritesheet.batch)
   
-  if debug then
+  if isDebug then
     -- Draw player path
     for i, location in ipairs(self.player.path) do
       colors.yellow:set()

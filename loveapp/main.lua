@@ -12,6 +12,8 @@ require 'middleclass-extras'
 require 'gamestate'
 require 'input'
 require 'logger'
+require 'profiler'
+
 
 scenes = {}
 require 'scenes/game'
@@ -19,7 +21,10 @@ require 'scenes/roomviewer'
 require 'scenes/notifytest'
 
 function love.load()
-  debug = true
+  profiler = newProfiler()
+  profiler:start()
+  
+  isDebug = true
 
   love.graphics.setCaption('Rogue Descent')
   love.filesystem.setIdentity('rogue-descent')
@@ -44,4 +49,12 @@ function love.load()
 end
 
 function love.update(dt)
+end
+
+function love.quit()
+  profiler:stop()
+
+  local outfile = io.open('profile.txt', 'w+')
+  profiler:report(outfile)
+  outfile:close()
 end

@@ -18,11 +18,7 @@ function Destination:initialize(level, index)
   
   self.level = level
   self.index = index
-  self.id = self:getId(level, index)
-end
-
-function Destination:getId(level, index)
-  return ((self.level - 1) * self.level / 2) + self.index
+  self.id = ((level - 1) * level / 2) + index
 end
 
 -- Return a table containing valid neighbors for the destination. May not be valid rooms. 
