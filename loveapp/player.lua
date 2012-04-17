@@ -42,11 +42,12 @@ function Player:update(dt)
   -- Follow path
   if self.path ~= nil and #self.path > 0 then
     local target = self.path[1]
-
     local movement = target - self.position
-    
-    self.position = self.position + (movement:normalized() * self.speed * dt)
-    
+
+    if movement:len() ~= 0 then
+      self.position = self.position + (movement:normalized() * self.speed * dt)
+    end
+
     local distance = target - self.position
     distance = distance:len()
     if distance < 5 then -- we've reached a node in the path
