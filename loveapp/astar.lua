@@ -56,8 +56,8 @@ function Node.__eq(a, b)
   return a.lid == b.lid
 end
 
-function Node.__tostring()
-  return a.lid == b.lid
+function Node:__tostring()
+  return 'Node('..tostring(self.location)..')'
 end
 
 AStar = class('AStar')
