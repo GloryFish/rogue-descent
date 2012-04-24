@@ -16,7 +16,7 @@ function Spritesheet:initialize(name)
   
   self.quads = {}
   
-  local frameData = require('resources/sprites/'..name..'.lua')
+  local frameData = require('resources/sprites/'..name)
   local frames = frameData.getFrames()
   
   for name, frame in pairs(frames) do
