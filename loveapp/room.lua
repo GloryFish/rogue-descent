@@ -81,10 +81,10 @@ function Room:generate()
 
     for y = 1, height, 1 do 
       if y == 1 or y == height or x == 1 or x == width then
-        self.tiles[x][y] = 'wall_1' 
+        self.tiles[x][y] = 'wall_dirt' 
         self.walkable[x][y] = false -- Outside wall is not walkable
       else
-          self.tiles[x][y] = 'background_1' -- Most of the background is not walkable
+          self.tiles[x][y] = 'background_steel' -- Most of the background is not walkable
         self.walkable[x][y] = false
       end
       
@@ -302,23 +302,31 @@ function Room:draw()
     for y = 1, #tiles[x] do
       local quad_bg = spritesheet.quads[tiles[x][y]]
 
-      spritesheet.batch:addq(quad_bg, 
-                              self.position.x + ((x - 1) * self.tileSize * self.scale), 
-                              self.position.y + ((y - 1) * self.tileSize * self.scale),
-                              0,
-                              self.scale,
-                              self.scale)
-
-      local scenery_id = self.scenery[x][y]
-      if scenery_id ~= 'empty' then
-        local quad_scenery = spritesheet.quads[scenery_id]
-
-        spritesheet.batch:addq(quad_scenery, 
+      if quad_bg == nil then
+        print('missing quad: ' .. tiles[x][y])
+      else
+        spritesheet.batch:addq(quad_bg, 
                                 self.position.x + ((x - 1) * self.tileSize * self.scale), 
                                 self.position.y + ((y - 1) * self.tileSize * self.scale),
                                 0,
                                 self.scale,
                                 self.scale)
+      end
+
+      local scenery_id = self.scenery[x][y]
+      if scenery_id ~= 'empty' then
+        local quad_scenery = spritesheet.quads[scenery_id]
+
+        if quad_scenery == nil then
+          print('missing quad: ' .. scenery_id)
+        else
+          spritesheet.batch:addq(quad_scenery, 
+                                  self.position.x + ((x - 1) * self.tileSize * self.scale), 
+                                  self.position.y + ((y - 1) * self.tileSize * self.scale),
+                                  0,
+                                  self.scale,
+                                  self.scale)
+        end
       end
     end
   end

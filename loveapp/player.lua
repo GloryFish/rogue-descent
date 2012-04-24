@@ -17,8 +17,10 @@ Player = class('Player')
 function Player:initialize()
   self.position = vector(0, 0)
   self.offset = vector(-8, -16)
+  self.scale = 2
   self.path = {}
   self.speed = 200
+  self.flip = 1
 end
 
 function Player:receiveMessage(message, data)
@@ -44,6 +46,14 @@ function Player:update(dt)
     local target = self.path[1]
     local movement = target - self.position
 
+    if movement.x < 0 then
+      self.flip = -1
+    end
+
+    if movement.x > 0 then
+      self.flip = 1
+    end
+
     if movement:len() ~= 0 then
       self.position = self.position + (movement:normalized() * self.speed * dt)
     end
@@ -55,15 +65,27 @@ function Player:update(dt)
     end
   end
   
+  -- Update offset
+  local size = self:getCurrentSize()
+  self.offset = vector(size.x / 2, 10) -- 10 is just right
+end
+
+-- Returns a vector representing the current size, besed on the active quad
+function Player:getCurrentSize()
+  local quad = spritesheet.quads['player_man_standing']
+  local x, y, w, h = quad:getViewport()
+  return vector(w, h)
 end
 
 function Player:draw()
-  spritesheet.batch:addq(spritesheet.quads['player'], 
-                         math.floor(self.position.x) + self.offset.x, 
-                         math.floor(self.position.y) + self.offset.y,
+  spritesheet.batch:addq(spritesheet.quads['player_man_standing'], 
+                         math.floor(self.position.x), 
+                         math.floor(self.position.y),
                          0,
-                         2,
-                         2)
+                         self.scale * self.flip,
+                         self.scale,
+                         self.offset.x,
+                         self.offset.y)
   if isDebug then
      -- Draw path
      for i, location in ipairs(self.path) do

@@ -15,7 +15,7 @@ function getFrames()
 	local frames = {
 		
 			{
-				name = "background_1",
+				name = "background_steel",
 				rect = { x = 56, y = 102, width = 16, height = 16 }, 
 			},
 		
@@ -75,18 +75,13 @@ function getFrames()
 			},
 		
 			{
-				name = "ladder.png",
+				name = "ladder_1",
 				rect = { x = 20, y = 128, width = 14, height = 16 }, 
 			},
 		
 			{
 				name = "mushroom",
 				rect = { x = 106, y = 2, width = 16, height = 16 }, 
-			},
-		
-			{
-				name = "player",
-				rect = { x = 20, y = 54, width = 8, height = 16 }, 
 			},
 		
 			{
@@ -215,13 +210,13 @@ function getFrames()
 			},
 		
 			{
-				name = "wall_1.png",
-				rect = { x = 92, y = 110, width = 16, height = 16 }, 
+				name = "wall_dirt",
+				rect = { x = 88, y = 20, width = 16, height = 16 }, 
 			},
 		
 			{
-				name = "wall_dirt.png",
-				rect = { x = 88, y = 20, width = 16, height = 16 }, 
+				name = "wall_steel",
+				rect = { x = 92, y = 110, width = 16, height = 16 }, 
 			},
 		
 	}
