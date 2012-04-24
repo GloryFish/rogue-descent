@@ -30,6 +30,8 @@ function Camera:initialize()
   self.shakeMax = vector(20, 20)
   self.shakeIntensity = 1
   
+  self.speed = 1.5 -- 1 is normal speed
+  
   self.zoom = 1
 end
 
@@ -44,7 +46,7 @@ end
 function Camera:update(dt)
   -- Move the camera if we are outside the deadzone
   if self.position:dist(self.focus) > self.deadzone then
-    self.position = self.position - (self.position - self.focus) * dt
+    self.position = self.position - (self.position - self.focus) * dt * self.speed
   end
 
   -- Clamp camera to bounds
