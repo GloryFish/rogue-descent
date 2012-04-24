@@ -65,7 +65,7 @@ function scene:draw()
 end
 
 function scene:quit()
-  love.event.push('q')
+  love.event.push('quit')
 end
 
 function scene:leave()
