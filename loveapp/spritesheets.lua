@@ -8,7 +8,7 @@
 
 require 'middleclass'
 
-Spritesheet = class('Spritesheet')
+local Spritesheet = class('Spritesheet')
 
 function Spritesheet:initialize(name)
   self.texture = love.graphics.newImage('resources/sprites/'..name..'.png') 
@@ -26,5 +26,9 @@ function Spritesheet:initialize(name)
   self.batch = love.graphics.newSpriteBatch(self.texture, 10000)
 end
 
+local sprites = {
+  main = Spritesheet('spritesheet'),
+  -- Later on add background, portraits, etc
+}
 
-spritesheet = Spritesheet('spritesheet')
+return sprites

@@ -15,6 +15,7 @@ local scene = Gamestate.new()
 
 function scene:enter(pre)
   self.finished = false
+  self:load()
 end
 
 function scene:keypressed(key, unicode)
@@ -24,6 +25,18 @@ function scene:mousepressed(x, y, button)
 end
 
 function scene:mousereleased(x, y, button)
+end
+
+function scene:load()
+  -- Prepare fonts
+  fonts = {
+    default        = love.graphics.newFont('resources/fonts/silkscreen.ttf', 24),
+    small          = love.graphics.newFont('resources/fonts/silkscreen.ttf', 20),
+  }
+  
+  -- Prepare spritesheet
+  sprites = require 'spritesheets'
+  print(tostring(sprites))
 end
 
 function scene:update(dt)

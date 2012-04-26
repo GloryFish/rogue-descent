@@ -25,20 +25,10 @@ function love.load()
   love.graphics.setCaption('Rogue Descent')
   love.filesystem.setIdentity('rogue-descent')
 
-  -- Seed random
-  local seed = os.time()
-  math.randomseed(seed);
-  math.random(); math.random(); math.random()
-
-  fonts = {
-    default        = love.graphics.newFont('resources/fonts/silkscreen.ttf', 24),
-    small          = love.graphics.newFont('resources/fonts/silkscreen.ttf', 20),
-  }
-
-  input = Input()
-
   soundOn = true
   love.audio.setVolume(1)
+  
+  input = Input()
 
   Gamestate.registerEvents()
   Gamestate.switch(scenes.loading)

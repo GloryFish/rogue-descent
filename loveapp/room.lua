@@ -10,7 +10,6 @@ require 'middleclass'
 require 'vector'
 require 'rectangle'
 require 'colors'
-require 'spritesheets'
 require 'destination'
 require 'door'
 require 'monster'
@@ -22,6 +21,8 @@ function Room:initialize(destination, position, size)
   assert(instanceOf(Destination, destination), 'destination must be a Destination object')
   assert(position ~= nil, 'Room intialized without position')
   assert(size ~= nil, 'Room intialized without size')
+
+  self.spritesheet = sprites.main
   
   self.destination = destination
   self.level = self.destination.level
@@ -300,32 +301,32 @@ function Room:draw()
   local tiles = self.tiles
   for x = 1, #tiles do
     for y = 1, #tiles[x] do
-      local quad_bg = spritesheet.quads[tiles[x][y]]
+      local quad_bg = self.spritesheet.quads[tiles[x][y]]
 
       if quad_bg == nil then
         print('missing quad: ' .. tiles[x][y])
       else
-        spritesheet.batch:addq(quad_bg, 
-                                self.position.x + ((x - 1) * self.tileSize * self.scale), 
-                                self.position.y + ((y - 1) * self.tileSize * self.scale),
-                                0,
-                                self.scale,
-                                self.scale)
+        self.spritesheet.batch:addq(quad_bg, 
+                                    self.position.x + ((x - 1) * self.tileSize * self.scale), 
+                                    self.position.y + ((y - 1) * self.tileSize * self.scale),
+                                    0,
+                                    self.scale,
+                                    self.scale)
       end
 
       local scenery_id = self.scenery[x][y]
       if scenery_id ~= 'empty' then
-        local quad_scenery = spritesheet.quads[scenery_id]
+        local quad_scenery = self.spritesheet.quads[scenery_id]
 
         if quad_scenery == nil then
           print('missing quad: ' .. scenery_id)
         else
-          spritesheet.batch:addq(quad_scenery, 
-                                  self.position.x + ((x - 1) * self.tileSize * self.scale), 
-                                  self.position.y + ((y - 1) * self.tileSize * self.scale),
-                                  0,
-                                  self.scale,
-                                  self.scale)
+          self.spritesheet.batch:addq(quad_scenery, 
+                                      self.position.x + ((x - 1) * self.tileSize * self.scale), 
+                                      self.position.y + ((y - 1) * self.tileSize * self.scale),
+                                      0,
+                                      self.scale,
+                                      self.scale)
         end
       end
     end

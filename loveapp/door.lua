@@ -14,7 +14,6 @@ require 'utility'
 require 'notifier'
 require 'rectangle'
 require 'notifier'
-require 'spritesheets'
 
 Door = class('Door')
 
@@ -23,6 +22,8 @@ function Door:initialize(position, room, destination)
   assert(instanceOf(Room, room), 'Door initilized with invalid room')
   assert(instanceOf(Destination, destination), 'Door initilized with invalid destination')
   assert(room ~= nil, 'A door must exist within a room')
+  
+  self.spritesheet = sprites.main
   
   self.rectangle = Rectangle(position, vector(40, 40))
   self.room = room
@@ -51,10 +52,10 @@ function Door:draw()
     frame = 'door_closed'
   end
   
-  spritesheet.batch:addq(spritesheet.quads[frame], 
-                         math.floor(self.rectangle.position.x), 
-                         math.floor(self.rectangle.position.y),
-                         0,
-                         2,
-                         2)
+  self.spritesheet.batch:addq(self.spritesheet.quads[frame], 
+                              math.floor(self.rectangle.position.x), 
+                              math.floor(self.rectangle.position.y),
+                              0,
+                              2,
+                              2)
 end

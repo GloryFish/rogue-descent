@@ -141,14 +141,14 @@ function scene:update(dt)
 end
 
 function scene:draw()
-  spritesheet.batch:clear()
+  sprites.main.batch:clear()
   
   self.camera:apply()
 
   self.dungeon:draw()
   self.player:draw()
 
-  love.graphics.draw(spritesheet.batch)
+  love.graphics.draw(sprites.main.batch)
   
   if isDebug then
     -- Draw player path

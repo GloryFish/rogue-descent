@@ -10,11 +10,12 @@ require 'middleclass'
 require 'vector'
 require 'colors'
 require 'notifier'
-require 'spritesheets'
 
 Player = class('Player')
 
 function Player:initialize()
+  self.spritesheet = sprites.main
+  
   self.position = vector(0, 0)
   self.offset = vector(-8, -16)
   self.scale = 2
@@ -72,20 +73,20 @@ end
 
 -- Returns a vector representing the current size, besed on the active quad
 function Player:getCurrentSize()
-  local quad = spritesheet.quads['player_man_standing']
+  local quad = self.spritesheet.quads['player_man_standing']
   local x, y, w, h = quad:getViewport()
   return vector(w, h)
 end
 
 function Player:draw()
-  spritesheet.batch:addq(spritesheet.quads['player_man_standing'], 
-                         math.floor(self.position.x), 
-                         math.floor(self.position.y),
-                         0,
-                         self.scale * self.flip,
-                         self.scale,
-                         self.offset.x,
-                         self.offset.y)
+  self.spritesheet.batch:addq(self.spritesheet.quads['player_man_standing'], 
+                              math.floor(self.position.x), 
+                              math.floor(self.position.y),
+                              0,
+                              self.scale * self.flip,
+                              self.scale,
+                              self.offset.x,
+                              self.offset.y)
   if isDebug then
      -- Draw path
      for i, location in ipairs(self.path) do
