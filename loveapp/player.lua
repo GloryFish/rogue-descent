@@ -87,18 +87,4 @@ function Player:draw()
                               self.scale,
                               self.offset.x,
                               self.offset.y)
-  if isDebug then
-     -- Draw path
-     for i, location in ipairs(self.path) do
-       local a = self.position
-       if i > 1 then
-         a = self.path[i - 1]
-       end
-       
-       local b = self.path[i]
-       colors.red:set()
-       love.graphics.line(a.x, a.y, b.x, b.y)
-       colors.white:set()
-     end
-  end
 end
