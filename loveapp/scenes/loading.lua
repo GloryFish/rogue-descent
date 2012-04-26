@@ -1,10 +1,8 @@
 --
---  base.lua
+--  loading.lua
 --  rogue-descent
 --
---  A base scene that can be used when creating new scenes.
---
---  Created by Jay Roberts on 2012-02-23.
+--  Created by Jay Roberts on 2012-04-26.
 --  Copyright 2012 Jay Roberts. All rights reserved.
 --
 
@@ -16,13 +14,10 @@ require 'rectangle'
 local scene = Gamestate.new()
 
 function scene:enter(pre)
-
+  self.finished = false
 end
 
 function scene:keypressed(key, unicode)
-  if key == 'escape' then
-    self:quit()
-  end
 end
 
 function scene:mousepressed(x, y, button)
@@ -32,7 +27,12 @@ function scene:mousereleased(x, y, button)
 end
 
 function scene:update(dt)
-  if love.mouse.isDown('l') then
+  self.finished = true
+  print('Finished loading')
+  
+  
+  if self.finished then
+    Gamestate.switch(scenes.game)
   end
 end
 

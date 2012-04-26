@@ -14,9 +14,7 @@ require 'camera'
 require 'player'
 require 'notifier'
 
-scenes.game = Gamestate.new()
-
-local scene = scenes.game
+local scene = Gamestate.new()
 
 function scene:enter(pre)
   self.dungeon = Dungeon()
@@ -173,3 +171,5 @@ end
 
 function scene:leave()
 end
+
+return scene

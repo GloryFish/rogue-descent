@@ -11,9 +11,7 @@ require 'vector'
 require 'colors'
 require 'notifier'
 
-scenes.notifytest = Gamestate.new()
-
-local scene = scenes.notifytest
+local scene = Gamestate.new()
 
 function scene:enter(pre)
   Notifier:listenForMessage('myCustomMessage', scene)
@@ -70,3 +68,5 @@ end
 
 function scene:leave()
 end
+
+return scene

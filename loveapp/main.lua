@@ -14,11 +14,7 @@ require 'input'
 require 'logger'
 require 'profiler'
 
-
-scenes = {}
-require 'scenes/game'
-require 'scenes/roomviewer'
-require 'scenes/notifytest'
+scenes = require 'scenes'
 
 function love.load()
   profiler = newProfiler()
@@ -45,7 +41,7 @@ function love.load()
   love.audio.setVolume(1)
 
   Gamestate.registerEvents()
-  Gamestate.switch(scenes.game)
+  Gamestate.switch(scenes.loading)
 end
 
 function love.update(dt)

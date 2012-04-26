@@ -13,9 +13,7 @@ require 'room'
 require 'camera'
 require 'dungeon'
 
-scenes.roomviewer = Gamestate.new()
-
-local scene = scenes.roomviewer
+local scene = Gamestate.new()
 
 function scene.enter(self, pre)
 	self.dungeon = Dungeon()
@@ -73,3 +71,5 @@ end
 
 function scene.leave(self)
 end
+
+return scene
