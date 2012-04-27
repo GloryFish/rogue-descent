@@ -38,6 +38,10 @@ function scene:keypressed(key, unicode)
   if key == ' ' then
     self.camera:shake(0.5, 0.5)
   end
+  
+  if key == '`' then
+    console:toggle()
+  end
 end
 
 function scene:mousepressed(x, y, button)
@@ -106,6 +110,8 @@ function scene:receiveMessage(message, data)
 end
 
 function scene:update(dt)
+  console:update(dt)
+  
   self.logger:update(dt)
   self.logger:addLine('FPS: '..love.timer.getFPS())
 
@@ -163,6 +169,8 @@ function scene:draw()
   self.camera:unapply()
   
   self.logger:draw()
+  
+  console:draw()
 end
 
 function scene:quit()

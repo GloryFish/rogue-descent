@@ -36,6 +36,9 @@ function scene:load()
   
   -- Prepare spritesheet
   sprites = require 'spritesheets'
+  
+  -- Create console
+  console = require 'console'  
 end
 
 function scene:update(dt)

@@ -34,6 +34,9 @@ function Color:random()
 	return Color(math.random(255), math.random(255), math.random(255))
 end
 
+function Color:clone()
+	return Color(self.r, self.g, self.b, self.a)
+end
 
 colors = {
   red = Color(255, 0, 0),
