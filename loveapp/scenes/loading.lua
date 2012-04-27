@@ -36,7 +36,6 @@ function scene:load()
   
   -- Prepare spritesheet
   sprites = require 'spritesheets'
-  print(tostring(sprites))
 end
 
 function scene:update(dt)
