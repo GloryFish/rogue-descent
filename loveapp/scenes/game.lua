@@ -31,6 +31,10 @@ function scene:enter(pre)
 end
 
 function scene:keypressed(key, unicode)
+  if console:keypressed(key, unicode) then
+    return
+  end
+   
   if key == 'escape' then
     self:quit()
   end
@@ -40,7 +44,7 @@ function scene:keypressed(key, unicode)
   end
   
   if key == '`' then
-    console:toggle()
+    console:open()
   end
 end
 

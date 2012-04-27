@@ -13,6 +13,8 @@ require 'colors'
 
 local Console = class('Console')
 
+
+
 function Console:initialize()
   self.isOpen = false
   self.commandBuffer = ''
@@ -21,7 +23,41 @@ function Console:initialize()
   self.topPosition = self.topAnchor -- This is the actual position, this changes as the console animates open
   
   self.color = colors.black:clone()
-  self.color.a = 200
+  self.color.a = 220  
+end
+
+function Console:keypressed(key, unicode)
+  if self.isOpen then
+    if key == '`' or key == 'escape' then
+      self:close()
+      return true
+    end
+    
+    if key == 'return' then
+      self:runCommand(self.commandBuffer)
+      return true
+    end
+    
+    if key == 'backspace' then
+      self.commandBuffer = self.commandBuffer:sub(1, -2)
+      return true
+    end
+    
+    if string.gmatch(key, '%w') then
+      self.commandBuffer = self.commandBuffer..key
+      return true
+    end
+    
+    return true
+  end
+
+  return false
+end
+
+function Console:runCommand(commandString)
+  print('run command')
+  
+  self.commandBuffer = ''
 end
 
 function Console:update(dt)
@@ -48,11 +84,16 @@ function Console:draw()
     return
   end
   
+  local top = math.floor(self.topPosition)
+  
   colors.white:set()
-  love.graphics.line(0, self.topPosition, love.graphics.getWidth(), self.topPosition)
+  love.graphics.line(0, top, love.graphics.getWidth(), top)
 
   self.color:set()
-  love.graphics.rectangle('fill', 0, self.topPosition, love.graphics.getWidth(), love.graphics.getHeight())
+  love.graphics.rectangle('fill', 0, top, love.graphics.getWidth(), love.graphics.getHeight())
+
+  colors.white:set()
+  love.graphics.print(self.commandBuffer, 20, self.topPosition + 20)
 
 end
 
