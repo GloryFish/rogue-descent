@@ -340,11 +340,11 @@ function Room:draw()
     object:draw()
   end
   
-  if false then
+  if vars.showpaths then
     for x = 1, #self.tiles do
       for y = 1, #self.tiles[x] do
         if not self.walkable[x][y] then
-          spritesheet.batch:addq(spritesheet.quads['half_red'], 
+          self.spritesheet.batch:addq(self.spritesheet.quads['half_red'], 
                                   self.position.x + ((x - 1) * self.tileSize * self.scale), 
                                   self.position.y + ((y - 1) * self.tileSize * self.scale),
                                   0,

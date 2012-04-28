@@ -31,6 +31,11 @@ end
 function scene:load()
   local startTime = os.time()
   
+  -- Set up vars
+  vars = {
+    showpaths = false,
+  }
+  
   -- Prepare fonts
   fonts = {
     default        = love.graphics.newFont('resources/fonts/silkscreen.ttf', 24),

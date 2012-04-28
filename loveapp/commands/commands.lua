@@ -113,6 +113,46 @@ local commands = {
     end,
   },
   
+  varset = {
+    description = 'Set game variables',
+    callback = function(delegate, ...)
+      local name = arg[1]
+      local val = arg[2]
+      
+      local translated = val
+      
+      if val == 'true' then
+        translated = true
+      elseif val == 'false' then
+        translated = false
+      elseif tonumber(val) ~= nil then
+        translated = tonumber(val)
+      end
+      
+      vars[name] = translated
+      return 'set variable'
+    end,
+  },
+
+  varget = {
+    description = 'Get game variables',
+    callback = function(delegate, ...)
+      local name = arg[1]
+      return tostring(vars[name])
+    end,
+  },
+
+  varlist = {
+    description = 'List game variables',
+    callback = function(delegate, ...)
+      local names = {}
+      for name, val in pairs(vars) do
+        table.insert(names, name)
+      end
+      return names
+    end,
+  },
+
 }
 
 return commands
