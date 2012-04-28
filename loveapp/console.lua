@@ -17,7 +17,13 @@ function Console:initialize()
   self.isOpen = false
   self.commandBuffer = ''
   self.outputLines = {}
+  self.maxLines = 14
+  self.commandHistory = {}
+  self.maxHistory = 20
+  self.historyIndex = 0
   
+  
+  table.insert(self.outputLines, 'Type \'help\' for a list of available commands')
   
   self.topAnchor = love.graphics.getHeight() / 2 -- This is where the top of the console is, set this to control the size
   self.topPosition = self.topAnchor -- This is the actual position, this changes as the console animates open
@@ -66,7 +72,35 @@ function Console:keypressed(key, unicode)
       return true
     end
     
-    if string.match(key, '[%l%d%s]') then
+    -- Process up/down here
+    if key == 'up' then
+      self.historyIndex = self.historyIndex + 1
+      if self.historyIndex > #self.commandHistory then
+        self.historyIndex = #self.commandHistory
+      end
+      
+      if self.commandHistory[self.historyIndex] ~= nil then
+        self.commandBuffer = self.commandHistory[self.historyIndex]
+      end
+      return true
+    end
+
+    if key == 'down' then
+      self.historyIndex = self.historyIndex - 1
+      if self.historyIndex < 1 then
+        self.commandBuffer = ''
+      else
+        self.commandBuffer = self.commandHistory[self.historyIndex]
+      end
+      
+      if self.historyIndex < 0 then
+        self.historyIndex = 0
+      end
+      
+      return true
+    end
+    
+    if string.match(key, '[%l%d%s-]') then
       self.commandBuffer = self.commandBuffer..key
       return true
     end
@@ -92,33 +126,63 @@ function Console:runCommand(commandString)
     end
   end
   
+  if commandName == '' then
+    return
+  end
+
+  table.insert(self.commandHistory, 1, commandString)
+  
+  if commandName == 'help' then
+    self:help()
+    self.commandBuffer = ''
+    return
+  end
+  
   -- Run the command
   if self.commands[commandName] ~= nil then
-    local success, lines = self.commands[commandName](unpack(args))
+    local lines = self.commands[commandName].callback(unpack(args))
     
     if lines ~= nil then
       if type(lines) == 'string' then
         -- Add this to the output here
+        table.insert(self.outputLines, lines)
       else
         for i, line in ipairs(lines) do
           -- Add this to the output here
+          table.insert(self.outputLines, line)
         end
       end
     end
-    
-    if success then
-      print('OK')
-    else
-      print('ERROR')
-    end
   else
-    print('Command not found')
+    table.insert(self.outputLines, 'Invalid command: '..commandName)
   end
 
+  self.historyIndex = 0
   self.commandBuffer = ''
 end
 
+function Console:help()
+  table.insert(self.outputLines, 'help - Display this screen')
+  
+  for commandName, command in pairs(self.commands) do
+    table.insert(self.outputLines, commandName..' - '..command.description)
+  end
+end
+
 function Console:update(dt)
+  -- Truncate lines table
+  if #self.outputLines > self.maxLines then
+    for i = 1, #self.outputLines - self.maxLines do
+      table.remove(self.outputLines, 1)
+    end
+  end
+
+  -- Truncate command history table
+  if #self.commandHistory > self.maxHistory then
+    for i = 1, #self.commandHistory - self.maxHistory do
+      table.remove(self.commandHistory, 1)
+    end
+  end
 end
 
 function Console:toggle()
@@ -159,6 +223,14 @@ function Console:draw()
   -- Command buffer
   colors.white:set()
   love.graphics.print('> '..self.commandBuffer..'_', 20, self.topPosition + 10)
+  
+  local offset = 40
+  local padding = 25
+  
+  for i = #self.outputLines, 1, -1 do
+    love.graphics.print(self.outputLines[i], 20, self.topPosition + offset)
+    offset = offset + padding
+  end
 end
 
 return Console()

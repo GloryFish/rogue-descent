@@ -3,14 +3,12 @@
 --  rogue-descent
 --
 --  An example of commands that can be invoked by the console. To add new commands create a new file in the commands folder.
---  That file should return a table of commands. Keys are command names and values are functions that recieve a variable 
---  number of arguments.
+--  That file should return a table of commands. Keys are command names and values are functions that recieve a delegate and a
+--  variable number of arguments.
 --  
---  The first argument will always be the console's delegate. In general, this should be the main game scene. It may also
---  be nil.
+--  In general, the delgate should be the main game scene. It may also be nil.
 --
---  The function should return a boolean success variable and a message string. It may also return a table of strings
---  or nothign at all. Yeah, I'm awesome.
+--  The function should return a message string or a table of strings or nil. Yeah, I'm awesome.
 --
 --  of text to be added to the console window.
 --
@@ -19,24 +17,21 @@
 --
 
 local commands = {
-  echo = function(...)
-    local delegate = arg[1]
-    local text = arg[2]
-    print(delegate)
-    print(text)
-    
-    return true, {text}
-  end,
-  
-  fail = function(...)
-    return false, {'This command failed intentionally'}
-  end,
-  
-  quit = function(...)
-    love.event.push('quit')
-    return true
-  end,
-  
+  quit = {
+    description = 'Exit the game',
+    callback = function(delegate, ...)
+      love.event.push('quit')
+      return
+    end,
+  },
+
+  exit = {
+    description = 'Exit the game',
+    callback = function(delegate, ...)
+      love.event.push('quit')
+      return
+    end,
+  },
 }
 
 return commands
