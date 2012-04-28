@@ -154,7 +154,7 @@ end
 
 function scene:draw()
   shaders.focus = self.camera:worldToScreen(self.player.position)
-  shaders:set(current_effect)
+  shaders:preDraw()
   
   sprites.main.batch:clear()
   
@@ -167,17 +167,18 @@ function scene:draw()
   
   if isDebug then
     -- Draw player path
+    colors.yellow:set()
     for i, location in ipairs(self.player.path) do
-      colors.yellow:set()
       love.graphics.circle('fill', location.x, location.y, 10)
     end
+    colors.white:set()
     
   end
   
   
   self.camera:unapply()
 
-  shaders:set()
+  shaders:postDraw(current_effect)
   
   self.logger:draw()
   

@@ -19,7 +19,7 @@ vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 pixel_coords) {
   
   float dist = distance(position, pixel_coords);
   
-  float lum = 1.2 - (dist / 600);
+  float lum = 1.2 - (dist / 500);
   
   return vec4(original.rgb * lum, original.a); 
 }

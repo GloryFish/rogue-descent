@@ -29,6 +29,8 @@ function scene:mousereleased(x, y, button)
 end
 
 function scene:load()
+  local startTime = os.time()
+  
   -- Prepare fonts
   fonts = {
     default        = love.graphics.newFont('resources/fonts/silkscreen.ttf', 24),
@@ -45,12 +47,14 @@ function scene:load()
   shaders = require 'shaders'
   
   current_effect = nil
+  
+  local totalTime = os.time() - startTime
+  print('Loaded in '..tostring(totalTime)..' seconds')
+  
 end
 
 function scene:update(dt)
   self.finished = true
-  print('Finished loading')
-  
   
   if self.finished then
     Gamestate.switch(scenes.game)

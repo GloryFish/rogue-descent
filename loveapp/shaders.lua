@@ -11,8 +11,12 @@ require 'middleclass'
 local Shaders = class('Shaders')
 
 function Shaders:initialize()
+  self.canvas = love.graphics.newCanvas()
+  self.quad = love.graphics.newQuad(0, 0, love.graphics.getWidth(), love.graphics.getHeight(), love.graphics.getWidth(), love.graphics.getHeight())
+  
   -- Tweakable parameters
   self.focus = vector(love.graphics.getWidth() / 2, love.graphics.getHeight() / 2)
+
   self:reload()
 end
 
@@ -64,8 +68,16 @@ function Shaders:set(name)
     for i, extern in ipairs(shader.externs) do
       if extern == 'time' then
         shader.effect:send('time', love.timer.getTime())
+        
       elseif extern == 'textureSize' then
         shader.effect:send('textureSize', {love.graphics.getWidth(), love.graphics.getHeight()})
+
+      elseif extern == 'inputSize' then
+        shader.effect:send('inputSize', {love.graphics.getWidth(), love.graphics.getHeight()})
+        
+      elseif extern == 'outputSize' then
+        shader.effect:send('outputSize', {love.graphics.getWidth(), love.graphics.getHeight()})
+        
       elseif extern == 'focus' then
         shader.effect:send('focus', {self.focus:unpack()})
       end
@@ -75,6 +87,18 @@ function Shaders:set(name)
   else
     love.graphics.setPixelEffect()
   end
+end
+
+function Shaders:preDraw()
+  love.graphics.setCanvas(self.canvas)
+  self.canvas:clear(0, 0, 0)
+end
+
+function Shaders:postDraw(name)
+  love.graphics.setCanvas()
+  self:set(name)
+  love.graphics.drawq(self.canvas, self.quad, 0, 0)
+  love.graphics.setPixelEffect()
 end
 
 return Shaders()
