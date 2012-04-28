@@ -17,6 +17,8 @@ require 'notifier'
 local scene = Gamestate.new()
 
 function scene:enter(pre)
+  console.delegate = self
+  
   self.dungeon = Dungeon()
 	self.player = Player()
 	self.camera = Camera()

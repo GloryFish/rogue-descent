@@ -13,8 +13,6 @@ require 'colors'
 
 local Console = class('Console')
 
-
-
 function Console:initialize()
   self.isOpen = false
   self.commandBuffer = ''
@@ -23,7 +21,30 @@ function Console:initialize()
   self.topPosition = self.topAnchor -- This is the actual position, this changes as the console animates open
   
   self.color = colors.black:clone()
-  self.color.a = 220  
+  self.color.a = 220
+  
+  self.delegate = nil
+  
+  self:loadCommands()
+end
+
+function Console:loadCommands()
+  self.commands = {}
+  
+  local filelist = love.filesystem.enumerate('commands')
+
+  local count = 0
+
+  for i, filename in ipairs(filelist) do
+    local commands = require('commands/'..filename:sub(1, -5))
+    
+    for name, callback in pairs(commands) do
+      self.commands[name] = callback
+      count = count + 1
+    end
+  end
+  
+  print('Loaded '..count..' commands')
 end
 
 function Console:keypressed(key, unicode)
@@ -43,7 +64,6 @@ function Console:keypressed(key, unicode)
       return true
     end
     
-    if string.gmatch(key, '%w') then
     if string.match(key, '[%l%d%s]') then
       self.commandBuffer = self.commandBuffer..key
       return true
@@ -56,8 +76,43 @@ function Console:keypressed(key, unicode)
 end
 
 function Console:runCommand(commandString)
-  print('run command')
+  -- Parse the input string
+  local parts = commandString:split(' ')
   
+  local commandName = ''
+  local args = {}
+  table.insert(args, self.delegate)
+  for i, part in ipairs(parts) do
+    if i == 1 then
+      commandName = part
+    else
+      table.insert(args, part)
+    end
+  end
+  
+  -- Run the command
+  if self.commands[commandName] ~= nil then
+    local success, lines = self.commands[commandName](unpack(args))
+    
+    if lines ~= nil then
+      if type(lines) == 'string' then
+        -- Add this to the output here
+      else
+        for i, line in ipairs(lines) do
+          -- Add this to the output here
+        end
+      end
+    end
+    
+    if success then
+      print('OK')
+    else
+      print('ERROR')
+    end
+  else
+    print('Command not found')
+  end
+
   self.commandBuffer = ''
 end
 
