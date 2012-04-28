@@ -44,6 +44,7 @@ function Console:keypressed(key, unicode)
     end
     
     if string.gmatch(key, '%w') then
+    if string.match(key, '[%l%d%s]') then
       self.commandBuffer = self.commandBuffer..key
       return true
     end
