@@ -32,6 +32,29 @@ local commands = {
     
   },
   
+  room = {
+    description = 'Spawn a room at the specified destination',
+    callback = function(delegate, ...)
+      if delegate == nil or 
+         delegate.dungeon == nil then
+        return 'Error: dungeon not found'
+
+      elseif arg[1] == 'fill' and tonumber(arg[2]) ~= nil then
+        local count = 0
+        for level = 1, arg[2] do
+          for index = 1, level do
+            local room = delegate.dungeon:roomAt(Destination(level, index))
+            for i, door in ipairs(room:getDoors()) do
+              room:unlockDoorTo(door.destination)
+            end
+            count = count + 1
+          end
+        end
+        return 'Spawned '..count..' rooms'
+      end
+    end,
+  },
+
   objects = {
     description = 'Print a list of all objects in the current room',
     callback = function(delegate, ...)
