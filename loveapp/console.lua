@@ -132,8 +132,17 @@ function Console:runCommand(commandString)
 
   table.insert(self.commandHistory, 1, commandString)
   
+  -- Built-in commands
   if commandName == 'help' then
     self:help()
+    self.commandBuffer = ''
+    return
+  end
+
+  if commandName == 'clear' then
+    self:help()
+    self.outputLines = {}
+    self.historyIndex = 0
     self.commandBuffer = ''
     return
   end
