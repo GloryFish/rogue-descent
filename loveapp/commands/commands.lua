@@ -40,6 +40,7 @@ local commands = {
         return 'Error: dungeon not found'
 
       elseif arg[1] == 'fill' and tonumber(arg[2]) ~= nil then
+        local startTime = os.time()
         local count = 0
         for level = 1, arg[2] do
           for index = 1, level do
@@ -50,7 +51,9 @@ local commands = {
             count = count + 1
           end
         end
-        return 'Spawned '..count..' rooms'
+        local totalTime = os.time() - startTime
+        
+        return 'Spawned '..count..' rooms in '..tostring(totalTime)..' seconds'
       end
     end,
   },
