@@ -16,6 +16,8 @@ local Console = class('Console')
 function Console:initialize()
   self.isOpen = false
   self.commandBuffer = ''
+  self.outputLines = {}
+  
   
   self.topAnchor = love.graphics.getHeight() / 2 -- This is where the top of the console is, set this to control the size
   self.topPosition = self.topAnchor -- This is the actual position, this changes as the console animates open
@@ -142,15 +144,21 @@ function Console:draw()
   
   local top = math.floor(self.topPosition)
   
+  -- Dark background
+  self.color:set()
+  love.graphics.rectangle('fill', 0, top, love.graphics.getWidth(), love.graphics.getHeight())
+  
+  -- Command dividers
+  love.graphics.setLineStyle('rough')
   colors.white:set()
   love.graphics.line(0, top, love.graphics.getWidth(), top)
 
-  self.color:set()
-  love.graphics.rectangle('fill', 0, top, love.graphics.getWidth(), love.graphics.getHeight())
+  colors.grey:set()
+  love.graphics.line(0, top + 30, love.graphics.getWidth(), top + 30)
 
+  -- Command buffer
   colors.white:set()
-  love.graphics.print(self.commandBuffer, 20, self.topPosition + 20)
-
+  love.graphics.print('> '..self.commandBuffer..'_', 20, self.topPosition + 10)
 end
 
 return Console()
