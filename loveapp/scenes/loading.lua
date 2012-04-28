@@ -10,6 +10,7 @@ require 'logger'
 require 'vector'
 require 'colors'
 require 'rectangle'
+require 'shaders'
 
 local scene = Gamestate.new()
 
@@ -38,7 +39,12 @@ function scene:load()
   sprites = require 'spritesheets'
   
   -- Create console
-  console = require 'console'  
+  console = require 'console'
+  
+  -- Load effects
+  shaders = require 'shaders'
+  
+  current_effect = nil
 end
 
 function scene:update(dt)

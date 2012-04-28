@@ -153,6 +153,8 @@ function scene:update(dt)
 end
 
 function scene:draw()
+  shaders:set(current_effect)
+  
   sprites.main.batch:clear()
   
   self.camera:apply()
@@ -173,6 +175,8 @@ function scene:draw()
   
   
   self.camera:unapply()
+
+  shaders:set()
   
   self.logger:draw()
   

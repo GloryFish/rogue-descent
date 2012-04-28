@@ -8,6 +8,7 @@
 --  Copyright 2012 GloryFish.org. All rights reserved.
 --
 
+require 'utility'
 require 'vector'
 require 'destination'
 
@@ -50,6 +51,33 @@ local commands = {
           return names
         end
       end
+    end,
+  },
+  
+  shader = {
+    description = 'Set the current pixel shader effect',
+    callback = function(delegate, ...)
+      local name = arg[1]
+      
+      if name == nil then
+        current_effect = nil
+        return 'No effect'
+      end
+    
+      if name == 'list' then
+        local items = {}
+        for shaderName, shader in pairs(shaders.shaders) do
+          table.insert(items, shaderName)
+        end
+        return items
+      end
+      
+      if not shaders:isEffect(name) then
+        return 'Invalid effect: '..name
+      end
+    
+      current_effect = name
+      return 'Effect: '..name
     end,
   },
   
