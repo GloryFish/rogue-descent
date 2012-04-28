@@ -100,6 +100,12 @@ function Console:keypressed(key, unicode)
       return true
     end
     
+    -- Everything else should be a single character
+    if string.len(key) > 1 then
+      return true
+    end
+    
+    -- Limit input to letters, numbers, spaces, and dashes
     if string.match(key, '[%l%d%s-]') then
       self.commandBuffer = self.commandBuffer..key
       return true
