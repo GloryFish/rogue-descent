@@ -71,6 +71,12 @@ local commands = {
         end
         return items
       end
+
+      if name == 'reload' then
+        shaders:reload()
+        return 'Reloaded shaders'
+      end
+
       
       if not shaders:isEffect(name) then
         return 'Invalid effect: '..name

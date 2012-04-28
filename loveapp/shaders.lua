@@ -11,6 +11,12 @@ require 'middleclass'
 local Shaders = class('Shaders')
 
 function Shaders:initialize()
+  -- Tweakable parameters
+  self.focus = vector(love.graphics.getWidth() / 2, love.graphics.getHeight() / 2)
+  self:reload()
+end
+
+function Shaders:reload()
   self.shaders = {}
   
   local filelist = love.filesystem.enumerate('effects')
@@ -60,6 +66,8 @@ function Shaders:set(name)
         shader.effect:send('time', love.timer.getTime())
       elseif extern == 'textureSize' then
         shader.effect:send('textureSize', {love.graphics.getWidth(), love.graphics.getHeight()})
+      elseif extern == 'focus' then
+        shader.effect:send('focus', {self.focus:unpack()})
       end
     end
     
@@ -67,9 +75,6 @@ function Shaders:set(name)
   else
     love.graphics.setPixelEffect()
   end
-end
-
-function Shaders:send(name, identifier, number)
 end
 
 return Shaders()

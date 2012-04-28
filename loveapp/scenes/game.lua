@@ -153,6 +153,7 @@ function scene:update(dt)
 end
 
 function scene:draw()
+  shaders.focus = self.camera:worldToScreen(self.player.position)
   shaders:set(current_effect)
   
   sprites.main.batch:clear()
