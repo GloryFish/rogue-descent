@@ -47,9 +47,9 @@ end
 
 function Door:draw()
   colors.white:set()
-  local frame = 'door_open'
+  local frame = 'green_door_open'
   if self.locked then
-    frame = 'door_closed'
+    frame = 'green_door_closed'
   end
   
   self.spritesheet.batch:addq(self.spritesheet.quads[frame], 

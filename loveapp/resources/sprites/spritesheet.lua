@@ -55,12 +55,12 @@ function getFrames()
 			},
 		
 			{
-				name = "green_door_closed.png",
+				name = "green_door_closed",
 				rect = { x = 38, y = 85, width = 16, height = 16 }, 
 			},
 		
 			{
-				name = "green_door_open.png",
+				name = "green_door_open",
 				rect = { x = 20, y = 92, width = 16, height = 16 }, 
 			},
 		
