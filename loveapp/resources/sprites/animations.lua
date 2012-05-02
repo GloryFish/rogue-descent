@@ -141,6 +141,27 @@ local animations = {
       -- Add new frames here
     }
   },
+	climbing = {
+    frames = {
+      {
+        name = 'climb_1', -- this is a Zwoptex sprite name
+        duration = 0.25 -- duration in seconds
+      },
+      {
+        name = 'climb_2', -- this is a Zwoptex sprite name
+        duration = 0.25 -- duration in seconds
+      },
+			{
+        name = 'climb_3', -- this is a Zwoptex sprite name
+        duration = 0.25 -- duration in seconds
+      },
+			{
+        name = 'climb_4', -- this is a Zwoptex sprite name
+        duration = 0.25 -- duration in seconds
+      },
+      -- Add new frames here
+    }
+  },
 }
 
 

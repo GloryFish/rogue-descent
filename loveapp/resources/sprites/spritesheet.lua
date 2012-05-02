@@ -25,13 +25,23 @@ function getFrames()
 			},
 		
 			{
-				name = "door_closed",
-				rect = { x = 106, y = 38, width = 16, height = 16 }, 
+				name = "climb_1",
+				rect = { x = 126, y = 1, width = 16, height = 18 }, 
 			},
 		
 			{
-				name = "door_open",
-				rect = { x = 104, y = 56, width = 16, height = 16 }, 
+				name = "climb_2",
+				rect = { x = 142, y = 1, width = 16, height = 18 }, 
+			},
+		
+			{
+				name = "climb_3",
+				rect = { x = 158, y = 1, width = 16, height = 18 }, 
+			},
+		
+			{
+				name = "climb_4",
+				rect = { x = 126, y = 22, width = 16, height = 18 }, 
 			},
 		
 			{
