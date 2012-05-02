@@ -1,3 +1,4 @@
+.DS_Store
 profile.txt
 *.love
 loveapp/resources/sprites/animations.lua
