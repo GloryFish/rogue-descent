@@ -20,6 +20,36 @@ function getFrames()
 			},
 		
 			{
+				name = "brain_1",
+				rect = { x = 108, y = 42, width = 16, height = 16 }, 
+			},
+		
+			{
+				name = "brain_2",
+				rect = { x = 123, y = 42, width = 16, height = 16 }, 
+			},
+		
+			{
+				name = "brain_3",
+				rect = { x = 139, y = 42, width = 16, height = 16 }, 
+			},
+		
+			{
+				name = "brain_4",
+				rect = { x = 155, y = 42, width = 16, height = 16 }, 
+			},
+		
+			{
+				name = "brain_5",
+				rect = { x = 124, y = 58, width = 16, height = 16 }, 
+			},
+		
+			{
+				name = "brain_6",
+				rect = { x = 108, y = 58, width = 16, height = 16 }, 
+			},
+		
+			{
 				name = "chest",
 				rect = { x = 38, y = 121, width = 16, height = 16 }, 
 			},

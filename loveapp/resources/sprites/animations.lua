@@ -162,6 +162,27 @@ local animations = {
       -- Add new frames here
     }
   },
+	brain = {
+    frames = {
+      {
+        name = 'brain_1', -- this is a Zwoptex sprite name
+        duration = 0.25 -- duration in seconds
+      },
+      {
+        name = 'brain_2', -- this is a Zwoptex sprite name
+        duration = 0.25 -- duration in seconds
+      },
+			{
+        name = 'brain_3', -- this is a Zwoptex sprite name
+        duration = 0.25 -- duration in seconds
+      },
+			{
+        name = 'brain_4', -- this is a Zwoptex sprite name
+        duration = 0.25 -- duration in seconds
+      },
+      -- Add new frames here
+    }
+  },
 }
 
 
