@@ -116,6 +116,7 @@ function scene:receiveMessage(message, data)
 end
 
 function scene:update(dt)
+  stats:update(dt)
   console:update(dt)
   
   self.logger:update(dt)
@@ -181,7 +182,7 @@ function scene:draw()
   shaders:postDraw(current_effect)
   
   self.logger:draw()
-  
+  stats:draw()
   console:draw()
 end
 

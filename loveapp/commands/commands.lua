@@ -153,6 +153,12 @@ local commands = {
     end,
   },
 
+  memory = {
+    description = 'Get memory usage info',
+    callback = function(delegate, ...)
+      return 'Memory used: '..tostring(collectgarbage('count'))..'kb'
+    end,
+  },
 }
 
 return commands

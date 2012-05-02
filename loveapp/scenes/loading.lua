@@ -34,6 +34,7 @@ function scene:load()
   -- Set up vars
   vars = {
     showpaths = false,
+    showstats = true,
   }
   
   -- Prepare fonts
@@ -47,6 +48,9 @@ function scene:load()
   
   -- Create console
   console = require 'console'
+  
+  -- Create stats
+  stats = require 'stats'
   
   -- Load effects
   shaders = require 'shaders'
