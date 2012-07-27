@@ -22,9 +22,9 @@ function Door:initialize(position, room, destination)
   assert(instanceOf(Room, room), 'Door initilized with invalid room')
   assert(instanceOf(Destination, destination), 'Door initilized with invalid destination')
   assert(room ~= nil, 'A door must exist within a room')
-  
+
   self.spritesheet = sprites.main
-  
+
   self.rectangle = Rectangle(position, vector(40, 40))
   self.room = room
   self.destination = destination
@@ -36,7 +36,6 @@ end
 function Door:receiveMessage(message, position)
   if message == 'mouse_up' then
     if self.rectangle:contains(position) then
-      print(string.format('posted door_selected dest: %s', tostring(self.destination)))
       self.room:unlockDoorTo(self.destination)
     end
   end
@@ -51,9 +50,9 @@ function Door:draw()
   if self.locked then
     frame = 'green_door_closed'
   end
-  
-  self.spritesheet.batch:addq(self.spritesheet.quads[frame], 
-                              math.floor(self.rectangle.position.x), 
+
+  self.spritesheet.batch:addq(self.spritesheet.quads[frame],
+                              math.floor(self.rectangle.position.x),
                               math.floor(self.rectangle.position.y),
                               0,
                               2,

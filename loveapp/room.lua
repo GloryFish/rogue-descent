@@ -23,7 +23,7 @@ function Room:initialize(destination, position, size)
   assert(size ~= nil, 'Room intialized without size')
 
   self.spritesheet = sprites.main
-  
+
   self.destination = destination
   self.level = self.destination.level
   self.index = self.destination.index
@@ -32,14 +32,14 @@ function Room:initialize(destination, position, size)
   self.center = position + size / 2
   self.platforms = {}
   self.objects = {}
-  
+
   self.tileSize = 16
   self.scale = 2
-  
+
   self.visible = false
-  
+
   self.astar = AStar(self)
-  
+
   self:generate()
 end
 
@@ -48,7 +48,7 @@ end
 function Room:nearestPlatform(position)
   local nearest = nil
   local shortestDistance = 100000
-  
+
   for index, platform in ipairs(self.platforms) do
     local vec = position - platform
     local dist = vec:len()
@@ -57,7 +57,7 @@ function Room:nearestPlatform(position)
       nearest = platform
     end
   end
-  
+
   if nearest ~= nil then
     return nearest
   else
@@ -71,49 +71,49 @@ function Room:generate()
   self.tiles = {}
   self.walkable = {}
   self.scenery = {}
-  
+
   local width = self.size.x / 32
   local height = self.size.y / 32
 
-  for x = 1, width, 1 do 
+  for x = 1, width, 1 do
     self.tiles[x] = {}
     self.walkable[x] = {}
     self.scenery[x] = {}
 
-    for y = 1, height, 1 do 
+    for y = 1, height, 1 do
       if y == 1 or y == height or x == 1 or x == width then
-        self.tiles[x][y] = 'wall_dirt' 
+        self.tiles[x][y] = 'wall_dirt'
         self.walkable[x][y] = false -- Outside wall is not walkable
       else
           self.tiles[x][y] = 'background_steel' -- Most of the background is not walkable
         self.walkable[x][y] = false
       end
-      
+
       self.scenery[x][y] = 'empty'
-      
+
     end
   end
-  
+
   -- Make bottom row of tiles walkable
   for x = 2, width - 1 do
     self.walkable[x][height -1] = true
   end
-  
+
   -- doors
   self.doors = {}
-  
+
   -- ul
   if self.destination.index > 1 and self.destination.level > 1 then
     local pos = vector(self.position.x + 32 * 5, self.position.y)
     table.insert(self.doors, Door(pos, self, Destination(self.destination.level - 1, self.destination.index - 1)))
-    
+
     -- Add ladder
     for y = 2, height - 1 do
       self.scenery[6][y] = 'ladder_1'
       self.walkable[6][y] = true
     end
   end
-    
+
   -- ur
   if self.destination.index < self.destination.level and self.destination.level > 1 then
     local pos = vector(self.position.x + self.size.x - 32 * 6, self.position.y)
@@ -126,26 +126,26 @@ function Room:generate()
     end
 
   end
-  
+
   -- ll
   local pos = vector(self.position.x + 32 * 4, self.position.y + self.size.y - 32)
   table.insert(self.doors, Door(pos, self, Destination(self.destination.level + 1, self.destination.index)))
-  
+
   -- lr
   pos = vector(self.position.x + self.size.x - 32 * 5, self.position.y + self.size.y - 32)
   table.insert(self.doors, Door(pos, self, Destination(self.destination.level + 1, self.destination.index + 1)))
-  
+
   -- Add monsters
   if self.level ~= 1 then -- First room has no monsters
     for i = 1, 3 do
       local monster = Monster(self.destination.level)
-      table.insert(self.objects, monster)    
+      table.insert(self.objects, monster)
     end
   end
-  
+
   -- Add items
 
-  
+
   -- Position objects
   local padding = 10
   width = 0
@@ -153,13 +153,13 @@ function Room:generate()
     width = width + object.size.x
   end
   width = width + (padding * (#self.objects - 1))
-  
+
   local x = self.center.x - width / 2
   for index, object in pairs(self.objects) do
     object.position = vector(x + (object.size.x / 2), self.position.y + 285)
     x = x + object.size.x + padding
   end
-  
+
   -- Set visibility
   if self.level == 1 then
     self.visible = true
@@ -169,12 +169,12 @@ end
 -- Returns true if the room contains the provided world point
 function Room:containsPoint(point)
   assert(vector.isvector(point), 'point must be a vector')
-  
+
   return point.x >= self.position.x and
          point.x <= self.position.x + self.size.x and
          point.y >= self.position.y and
          point.y <= self.position.y + self.size.y
-  
+
 end
 
 function Room:toWorldCoords(point)
@@ -182,7 +182,7 @@ function Room:toWorldCoords(point)
     (point.x - 1) * self.tileSize * self.scale,
     (point.y - 1) * self.tileSize * self.scale
   )
-  
+
   return world
 end
 
@@ -191,9 +191,9 @@ function Room:toWorldCoordsCenter(point)
     (point.x - 1) * self.tileSize * self.scale,
     (point.y - 1) * self.tileSize * self.scale
   )
-  
+
   world = world + vector(self.tileSize * self.scale / 2, self.tileSize * self.scale / 2) + self.position
-  
+
   return world
 end
 
@@ -202,13 +202,12 @@ end
 function Room:pathBetweenPoints(pointA, pointB)
   assert(self:containsPoint(pointA), 'pointA must be within this room')
   assert(self:containsPoint(pointB), 'pointB must be within this room')
-  
+
   local tileA = self:toTileCoords(pointA)
   local tileB = self:toTileCoords(pointB)
-  
+
   local nodePath = self.astar:findPath(tileA, tileB)
   if nodePath == nil then
-    print('room faile dot find path between: '..tostring(pointA).. ' and '..tostring(pointB))
     return nil
   end
 
@@ -219,21 +218,14 @@ function Room:pathBetweenPoints(pointA, pointB)
     table.insert(path, worldPoint)
   end
 
-  if isDebug then
-    print('found room path with '..tostring(#path)..' nodes')
-    for i, node in ipairs(path) do
-      print(node)
-    end
-  end
-
-  return path  
+  return path
 end
 
 
 -- Converts a world point to local tile coordinates
 function Room:toTileCoords(point)
   local loc = point - self.position
-  
+
   local coords = vector(math.floor(loc.x / (self.tileSize * self.scale)) + 1,
                         math.floor(loc.y / (self.tileSize * self.scale)) + 1)
   return coords
@@ -241,14 +233,14 @@ end
 
 function Room:tilePointIsWalkable(tile)
   assert(vector.isvector(tile), 'tile must be a vector')
-  
-  if tile.x < 1 or 
+
+  if tile.x < 1 or
      tile.y < 1 or
      tile.x > #self.walkable or
      tile.y > #self.walkable[1] then
      return false
   end
-  
+
   if self.walkable[tile.x] ~= nil then
     return self.walkable[tile.x][tile.y]
   else
@@ -278,12 +270,12 @@ end
 
 function Room:unlockDoorTo(destination)
   assert(instanceOf(Destination, destination), 'destination must be a Destination object')
-  
+
   local door = self:getDoorTo(destination)
   if door == nil then
     return
   end
-  
+
   if door.locked then
     door.locked = false
     Notifier:postMessage('door_unlocked', door)
@@ -297,7 +289,7 @@ function Room:draw()
   if not self.visible then
     return
   end
-  
+
   local tiles = self.tiles
   for x = 1, #tiles do
     for y = 1, #tiles[x] do
@@ -306,8 +298,8 @@ function Room:draw()
       if quad_bg == nil then
         print('missing quad: ' .. tiles[x][y])
       else
-        self.spritesheet.batch:addq(quad_bg, 
-                                    self.position.x + ((x - 1) * self.tileSize * self.scale), 
+        self.spritesheet.batch:addq(quad_bg,
+                                    self.position.x + ((x - 1) * self.tileSize * self.scale),
                                     self.position.y + ((y - 1) * self.tileSize * self.scale),
                                     0,
                                     self.scale,
@@ -321,8 +313,8 @@ function Room:draw()
         if quad_scenery == nil then
           print('missing quad: ' .. scenery_id)
         else
-          self.spritesheet.batch:addq(quad_scenery, 
-                                      self.position.x + ((x - 1) * self.tileSize * self.scale), 
+          self.spritesheet.batch:addq(quad_scenery,
+                                      self.position.x + ((x - 1) * self.tileSize * self.scale),
                                       self.position.y + ((y - 1) * self.tileSize * self.scale),
                                       0,
                                       self.scale,
@@ -331,7 +323,7 @@ function Room:draw()
       end
     end
   end
-  
+
   for i, door in ipairs(self.doors) do
     door:draw()
   end
@@ -339,13 +331,13 @@ function Room:draw()
   for index, object in ipairs(self.objects) do
     object:draw()
   end
-  
+
   if vars.showpaths then
     for x = 1, #self.tiles do
       for y = 1, #self.tiles[x] do
         if not self.walkable[x][y] then
-          self.spritesheet.batch:addq(self.spritesheet.quads['half_red'], 
-                                  self.position.x + ((x - 1) * self.tileSize * self.scale), 
+          self.spritesheet.batch:addq(self.spritesheet.quads['half_red'],
+                                  self.position.x + ((x - 1) * self.tileSize * self.scale),
                                   self.position.y + ((y - 1) * self.tileSize * self.scale),
                                   0,
                                   self.scale,
@@ -354,7 +346,7 @@ function Room:draw()
       end
     end
   end
-  
+
 end
 
 
@@ -363,11 +355,11 @@ end
 -- Location should be a point in tile coordinates
 function Room:getNode(location)
   assert(vector.isvector(location), 'location must be a vector')
-  
+
   if not self:tilePointIsWalkable(location) then
     return nil;
   end
-  
+
   return Node(location, 10, location.y * #self.tiles + location.x)
 end
 
@@ -379,9 +371,9 @@ function Room:getAdjacentNodes(curnode, dest)
   local result = {}
   local cl = curnode.location
   local dl = dest
-  
+
   local n = false
-  
+
   n = self:_handleNode(cl.x + 1, cl.y, curnode, dl.x, dl.y)
   if n then
     table.insert(result, n)
@@ -401,7 +393,7 @@ function Room:getAdjacentNodes(curnode, dest)
   if n then
     table.insert(result, n)
   end
-  
+
   return result
 end
 
@@ -412,20 +404,20 @@ end
 function Room:_handleNode(x, y, fromnode, destx, desty)
   -- Fetch a Node for the given location and set its parameters
   local loc = vector(x, y)
-  
+
   local n = self:getNode(loc)
-  
+
   if n ~= nil then
     local dx = math.max(x, destx) - math.min(x, destx)
     local dy = math.max(y, desty) - math.min(y, desty)
     local emCost = dx + dy
-    
+
     n.mCost = n.mCost + fromnode.mCost
     n.score = n.mCost + emCost
     n.parent = fromnode
-    
+
     return n
   end
-  
+
   return nil
 end

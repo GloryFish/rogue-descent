@@ -15,7 +15,7 @@ local Stats = class('Stats')
 function Stats:initialize()
   self.interval = 1
   self.elapsed = 0
-  
+
   self.size = vector(500, 200)
 
   self.position = vector(love.graphics.getWidth() - self.size.x - 30, 30)
@@ -24,7 +24,7 @@ function Stats:initialize()
   table.insert(self.memory, 0)
   self.maxsize = math.floor(self.size.x / 2)
   self.xWidth = self.size.x / self.maxsize
-  
+
   self.maxMemory = 0
 end
 
@@ -45,9 +45,6 @@ function Stats:log()
     self.maxMemory = memory
   end
 
-  print(tostring(memory))
-  print(tostring(memory / self.maxMemory))
-
   table.insert(self.memory, memory)
 end
 
@@ -58,9 +55,9 @@ function Stats:draw()
 
   colors.white:set()
   love.graphics.line(self.position.x, self.position.y + self.size.y, self.position.x + self.size.x, self.position.y + self.size.y)
-  
+
   local points = {}
-  
+
   for i = 1, #self.memory do
     local currentMemory = self.memory[i]
     if currentMemory == nil then
@@ -71,15 +68,15 @@ function Stats:draw()
     -- Calculate local coordinates of graph with positiive Y moving up
     local currentX = math.floor((i - 1) * self.xWidth)
     local currentY = math.floor((currentMemory / self.maxMemory) * self.size.y)
-    
+
     -- Transform to screen coordinates
     currentX = self.position.x + currentX + self.size.x - #self.memory * self.xWidth
     currentY = self.position.y + self.size.y - currentY
-    
+
     table.insert(points, currentX)
     table.insert(points, currentY)
   end
-  
+
   if #points >= 4 then
     colors.red:set()
     love.graphics.line(points)
