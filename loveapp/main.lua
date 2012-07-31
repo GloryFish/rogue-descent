@@ -19,7 +19,7 @@ scenes = require 'scenes'
 function love.load()
   profiler = newProfiler()
   profiler:start()
-  
+
   isDebug = true
 
   love.graphics.setCaption('Rogue Descent')
@@ -27,7 +27,7 @@ function love.load()
 
   soundOn = true
   love.audio.setVolume(1)
-  
+
   input = Input()
 
   Gamestate.registerEvents()
