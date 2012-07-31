@@ -9,6 +9,7 @@
 require 'middleclass'
 require 'vector'
 require 'room'
+require 'roomtiled'
 require 'astar'
 
 Dungeon = class('Dungeon')
@@ -71,9 +72,7 @@ function Dungeon:positionIsWalkable(position)
     return false
   end
 
-  local tile = room:toTileCoords(position)
-
-  return room:tilePointIsWalkable(tile)
+  return room:positionIsWalkable(position)
 end
 
 function Dungeon:positionForRoomAtDestination(destination)
@@ -193,7 +192,15 @@ function Dungeon:roomAt(destination)
   local room = self.rooms[destination.id]
   if room == nil then
     local position = self:positionForRoomAtDestination(destination)
-    room = Room(destination, position, self.roomSize)
+
+    if math.random() > 0.5 then
+      room = RoomTiled(destination, position, self.roomSize)
+    else
+      room = Room(destination, position, self.roomSize)
+    end
+
+
+
     self.rooms[destination.id] = room
   end
 

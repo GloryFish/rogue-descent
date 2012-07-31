@@ -125,11 +125,7 @@ function scene:update(dt)
   local world = self.camera:screenToWorld(vector(love.mouse.getX(), love.mouse.getY()))
   self.logger:addLine('Screen: '..tostring(vector(love.mouse.getX(), love.mouse.getY())))
   self.logger:addLine('World: '..tostring(world))
-  local tile = self.dungeon.currentRoom:toTileCoords(world)
-  self.logger:addLine('Tile: '..tostring(tile))
-  local center = self.dungeon.currentRoom:toWorldCoordsCenter(tile)
-  self.logger:addLine('Tile Center: '..tostring(center))
-  
+
   local playerDest = self.dungeon:destinationForPosition(self.player.position)
   self.dungeon.currentRoom = self.dungeon:roomAt(playerDest)
 
