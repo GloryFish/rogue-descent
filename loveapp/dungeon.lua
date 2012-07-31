@@ -8,8 +8,7 @@
 
 require 'middleclass'
 require 'vector'
-require 'room'
-require 'roomtiled'
+require 'roomfactory'
 require 'astar'
 
 Dungeon = class('Dungeon')
@@ -23,8 +22,9 @@ end
 function Dungeon:reset()
   self.rooms = {}
   self.roomSize = vector(640, 320)
+  self.roomFactory = RoomFactory('random')
 
-  local startingRoom = Room(Destination(1, 1), vector(0, 0), self.roomSize)
+  local startingRoom = self.roomFactory:buildRoom(Destination(1, 1), vector(0, 0), self.roomSize)
 
   self.rooms[startingRoom.destination.id] = startingRoom
   self.currentRoom = startingRoom
@@ -192,15 +192,7 @@ function Dungeon:roomAt(destination)
   local room = self.rooms[destination.id]
   if room == nil then
     local position = self:positionForRoomAtDestination(destination)
-
-    if math.random() > 0.5 then
-      room = RoomTiled(destination, position, self.roomSize)
-    else
-      room = Room(destination, position, self.roomSize)
-    end
-
-
-
+    room = self.roomFactory:buildRoom(destination, position, self.roomSize)
     self.rooms[destination.id] = room
   end
 

@@ -7,7 +7,7 @@
 --
 
 require 'middleclass'
-require 'room'
+require 'rooms/room'
 require 'vector'
 require 'rectangle'
 require 'colors'

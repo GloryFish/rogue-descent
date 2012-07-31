@@ -35,6 +35,7 @@ function scene:load()
   vars = {
     showpaths = false,
     showstats = true,
+    roomfactype = 'random',
   }
 
   -- Prepare fonts
