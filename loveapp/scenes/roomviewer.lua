@@ -17,7 +17,7 @@ local scene = Gamestate.new()
 
 function scene.enter(self, pre)
 	self.dungeon = Dungeon()
-	
+
 	self.camera = Camera()
 	self.camera.deadzone = 0
 end
@@ -26,7 +26,7 @@ function scene.keypressed(self, key, unicode)
   if key == 'escape' then
     self:quit()
   end
-  
+
   if key == 'a' then
     self.dungeon:goToLocationFromRoom('ll', self.dungeon.currentRoom)
   end
@@ -52,7 +52,7 @@ function scene.update(self, dt)
   end
 
   self.dungeon:update(dt)
-  
+
   self.camera.focus = vector(self.dungeon.currentRoom.position.x + self.dungeon.currentRoom.size.x / 2, self.dungeon.currentRoom.position.y + self.dungeon.currentRoom.size.y / 2)
 
   self.camera:update(dt)
