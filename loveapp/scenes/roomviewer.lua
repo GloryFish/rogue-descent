@@ -9,7 +9,6 @@
 require 'logger'
 require 'vector'
 require 'colors'
-require 'room'
 require 'camera'
 require 'dungeon'
 
