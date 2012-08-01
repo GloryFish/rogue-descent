@@ -24,6 +24,10 @@ function GestureRecognizer:initialize()
     isDragging = false,
     position = vector(love.mouse.getX(), love.mouse.getY())
   }
+
+  self.startPosition = self.state.position
+
+  self.dragSensitivity = 2
 end
 
 function GestureRecognizer:update(dt)
@@ -37,11 +41,12 @@ function GestureRecognizer:update(dt)
 
   -- New button Down
   if self.state.isDown == true and self.previousState.isDown == false then
+    self.startPosition = self.state.position
     Notifier:postMessage('mouse_down', self.state.position)
   end
 
   -- Button is down and moved
-  if self.state.isDown == true and self.state.position:dist(self.previousState.position) > 0.5 then
+  if self.state.isDown == true and self.state.position:dist(self.startPosition) > self.dragSensitivity then
     self.state.isDragging = true
     Notifier:postMessage('mouse_drag', self.state.position - self.previousState.position)
   end
