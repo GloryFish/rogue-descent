@@ -29,9 +29,9 @@ function Camera:initialize()
   self.shakeAmount = vector(0, 0)
   self.shakeMax = vector(20, 20)
   self.shakeIntensity = 1
-  
+
   self.speed = 1.5 -- 1 is normal speed
-  
+
   self.zoom = 1
 end
 

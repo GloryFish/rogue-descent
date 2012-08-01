@@ -42,11 +42,10 @@ function NotifierClass:postMessage(message, data)
   if self.listeners[message] == nil then
     self.listeners[message] = {}
   end
-  
+
   for index, listener in ipairs(self.listeners[message]) do
     listener:receiveMessage(message, data)
   end
 end
-  
+
 Notifier = NotifierClass()
-  
