@@ -59,7 +59,6 @@ function Dungeon:destinationForPosition(position)
   return Destination(level, index)
 end
 
-
 function Dungeon:positionIsWalkable(position)
   assert(vector.isvector(position), 'position must be a vector')
 
@@ -181,11 +180,14 @@ end
 function Dungeon:setCurrentRoom(destination)
   assert(instanceOf(Destination, destination), 'destination must be a Destination object')
 
-  local room = self:roomAt(destination)
 
-  assert(instanceOf(Room, room), 'couldn\'t make a valid room')
+  if self.currentRoom.destination ~= destination then
+    local room = self:roomAt(destination)
+    assert(instanceOf(Room, room), 'couldn\'t make a valid room')
 
-  self.currentRoom = room
+    self.currentRoom = room
+    self.currentRoom:lockUpperDoors()
+  end
 end
 
 function Dungeon:roomAt(destination)

@@ -118,7 +118,7 @@ function scene:update(dt)
   self.logger:addLine('World: '..tostring(world))
 
   local playerDest = self.dungeon:destinationForPosition(self.player.position)
-  self.dungeon.currentRoom = self.dungeon:roomAt(playerDest)
+  self.dungeon:setCurrentRoom(playerDest)
 
   if self.dungeon:positionIsWalkable(world) then
     self.logger:addLine('Walkable')

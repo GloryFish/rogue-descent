@@ -134,8 +134,34 @@ function Room:unlockDoorTo(destination)
   end
 end
 
+function Room:lockUpperDoors()
+  if self.destination.index > 1 and self.destination.level > 1 then
+    local dest = Destination(self.destination.level - 1, self.destination.index - 1)
+    self:lockDoorTo(dest)
+  end
+
+  -- ur
+  if self.destination.index < self.destination.level and self.destination.level > 1 then
+    local dest = Destination(self.destination.level - 1, self.destination.index)
+    self:lockDoorTo(dest)
+  end
+end
+
 function Room:positionIsWalkable(point)
-  return self:containsPoint(point)
+  if point.x > self.position.x + 32 and
+     point.y > self.position.y + 32 and
+     point.x < self.position.x + self.size.x - 32 and
+     point.y < self.position.y + self.size.y - 32 then
+     return true
+  end
+
+  for i, door in ipairs(self.doors) do
+    if not door.locked and door.rectangle:contains(point) then
+      return true
+    end
+  end
+
+  return false
 end
 
 
