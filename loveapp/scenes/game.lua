@@ -34,6 +34,7 @@ function scene:enter(pre)
 	self.camera.focus = roomCenter
 
   Notifier:listenForMessage('door_unlocked', self)
+  Notifier:listenForMessage('door_locked', self)
 	Notifier:listenForMessage('mouse_up', self)
   Notifier:listenForMessage('mouse_drag', self)
   Notifier:listenForMessage('mouse_click', self)
@@ -73,6 +74,14 @@ function scene:receiveMessage(message, data)
     destinationRoom:unlockDoorTo(door.room.destination)
   end
 
+  if message == 'door_locked' then
+    local door = data
+
+    -- when a door is locked, spawn its destination room and lock the related door there
+    local destinationRoom = self.dungeon:roomAt(door.destination)
+    destinationRoom:lockDoorTo(door.room.destination)
+  end
+
   if message == 'mouse_drag' then
     local position = data
     self.camera.focus = self.camera.focus - position
@@ -87,10 +96,11 @@ function scene:receiveMessage(message, data)
       if path ~= nil then
         self.player:followPath(path)
       end
+    else
+      -- Pass this on to other interested game objects
+      Notifier:postMessage('world_click', worldPoint)
     end
 
-    -- Pass this on to other interested game objects
-    Notifier:postMessage('world_click', worldPoint)
   end
 end
 

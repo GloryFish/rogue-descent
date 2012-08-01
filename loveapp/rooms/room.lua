@@ -106,6 +106,20 @@ function Room:getDoorTo(destination)
   return nil
 end
 
+function Room:lockDoorTo(destination)
+  assert(instanceOf(Destination, destination), 'destination must be a Destination object')
+
+  local door = self:getDoorTo(destination)
+  if door == nil then
+    return
+  end
+
+  if not door.locked then
+    door.locked = true
+    Notifier:postMessage('door_locked', door)
+  end
+end
+
 function Room:unlockDoorTo(destination)
   assert(instanceOf(Destination, destination), 'destination must be a Destination object')
 

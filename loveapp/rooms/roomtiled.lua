@@ -228,6 +228,25 @@ end
 function RoomTiled:update(dt)
 end
 
+function RoomTiled:lockDoorTo(destination)
+  assert(instanceOf(Destination, destination), 'destination must be a Destination object')
+
+  local door = self:getDoorTo(destination)
+  if door == nil then
+    return
+  end
+
+  if not door.locked then
+    door.locked = true
+
+    -- RoomTiled needs to set the door tile as walkable area it is unlocked
+    local coords = self:toTileCoords(door.center)
+    self.walkable[coords.x][coords.y] = false
+
+    Notifier:postMessage('door_locked', door)
+  end
+end
+
 function RoomTiled:unlockDoorTo(destination)
   assert(instanceOf(Destination, destination), 'destination must be a Destination object')
 
@@ -238,12 +257,13 @@ function RoomTiled:unlockDoorTo(destination)
 
   if door.locked then
     door.locked = false
+
+    -- RoomTiled needs to set the door tile as walkable area it is unlocked
+    local coords = self:toTileCoords(door.center)
+    self.walkable[coords.x][coords.y] = true
+
     Notifier:postMessage('door_unlocked', door)
   end
-
-  -- RoomTiled needs to set the door tile as walkable area it is unlocked
-  local coords = self:toTileCoords(door.center)
-  self.walkable[coords.x][coords.y] = true
 end
 
 function RoomTiled:draw()

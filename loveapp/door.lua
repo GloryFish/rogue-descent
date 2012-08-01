@@ -36,7 +36,11 @@ end
 function Door:receiveMessage(message, position)
   if message == 'world_click' then
     if self.rectangle:contains(position) then
-      self.room:unlockDoorTo(self.destination)
+      if self.locked then
+        self.room:unlockDoorTo(self.destination)
+      else
+        self.room:lockDoorTo(self.destination)
+      end
     end
   end
 end
