@@ -28,6 +28,8 @@ function Dungeon:reset()
 
   self.rooms[startingRoom.destination.id] = startingRoom
   self.currentRoom = startingRoom
+
+  self.focus = startingRoom.position
 end
 
 function Dungeon:idForLevelAndIndex(level, index)
@@ -200,7 +202,13 @@ function Dungeon:roomAt(destination)
 end
 
 function Dungeon:update(dt)
-  for index, destination in ipairs(self:getNeighborhood(self.currentRoom.destination)) do
+  local focusDestination = self:destinationForPosition(self.focus)
+  if not focusDestination then
+    print('invalid focus destination for: ' .. tostring(self.focus))
+    return
+  end
+
+  for index, destination in ipairs(self:getNeighborhood(focusDestination)) do
     self.rooms[destination.id]:update(dt)
   end
 end
@@ -228,7 +236,13 @@ end
 
 
 function Dungeon:draw()
-  for index, destination in ipairs(self:getNeighborhood(self.currentRoom.destination, 2)) do
+  local focusDestination = self:destinationForPosition(self.focus)
+  if not focusDestination then
+    print('invalid focus destination for: ' .. tostring(self.focus))
+    return
+  end
+
+  for index, destination in ipairs(self:getNeighborhood(focusDestination, 2)) do
     self.rooms[destination.id]:draw()
   end
 end

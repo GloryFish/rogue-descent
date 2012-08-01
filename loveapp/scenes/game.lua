@@ -113,6 +113,7 @@ function scene:update(dt)
   self.logger:addLine(string.format('Rooms: %i', count))
   self.logger:addLine(string.format('Neighbors: %i', #self.dungeon:getNeighborhood(self.dungeon.currentRoom.destination)))
 
+  self.dungeon.focus = self.camera.focus
   self.dungeon:update(dt)
 
   self.player:update(dt)
