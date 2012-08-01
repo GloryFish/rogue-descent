@@ -30,11 +30,11 @@ function Door:initialize(position, room, destination)
   self.destination = destination
   self.locked = true
   self.center = self.rectangle.position + vector(16, 16)
-  Notifier:listenForMessage('mouse_up', self)
+  Notifier:listenForMessage('world_click', self)
 end
 
 function Door:receiveMessage(message, position)
-  if message == 'mouse_up' then
+  if message == 'world_click' then
     if self.rectangle:contains(position) then
       self.room:unlockDoorTo(self.destination)
     end

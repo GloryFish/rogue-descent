@@ -12,6 +12,7 @@ require 'colors'
 require 'dungeon'
 require 'camera'
 require 'player'
+require 'gesturerecognizer'
 require 'notifier'
 
 local scene = Gamestate.new()
@@ -25,12 +26,17 @@ function scene:enter(pre)
 	self.camera.deadzone = 0
   self.camera.smoothMovement = false
 	self.logger = Logger()
+  self.gestureRecognizer = GestureRecognizer()
 
 	local roomCenter = vector(self.dungeon.currentRoom.size.x / 2, self.dungeon.currentRoom.size.y / 2)
 	self.player.position = vector(336, 272)
 	self.camera.position = roomCenter
-	Notifier:listenForMessage('door_unlocked', self)
+	self.camera.focus = roomCenter
+
+  Notifier:listenForMessage('door_unlocked', self)
 	Notifier:listenForMessage('mouse_up', self)
+  Notifier:listenForMessage('mouse_drag', self)
+  Notifier:listenForMessage('mouse_click', self)
 end
 
 function scene:keypressed(key, unicode)
@@ -55,7 +61,6 @@ function scene:mousepressed(x, y, button)
 end
 
 function scene:mousereleased(x, y, button)
-  Notifier:postMessage('mouse_up', self.camera:screenToWorld(vector(x, y)))
 end
 
 function scene:receiveMessage(message, data)
@@ -68,57 +73,24 @@ function scene:receiveMessage(message, data)
     destinationRoom:unlockDoorTo(door.room.destination)
   end
 
-  if message == 'mouse_up' then
+  if message == 'mouse_drag' then
     local position = data
-
-    if self.dungeon:positionIsWalkable(position) then
-      local path = self.dungeon:pathBetweenPoints(self.player.position, position)
-      if path ~= nil then
-        self.player:followPath(path)
-      end
-    end
-
-    -- -- Find the room the player is in
-    --    local playerDest = self.dungeon:destinationForPosition(self.player.position)
-    --    local playerRoom = self.dungeon:roomAt(playerDest)
-    --
-    --    -- and the room the click is in
-    --    local clickDest = self.dungeon:destinationForPosition(position)
-    --
-    --    if playerDest.id == clickDest.id then
-    --      -- player and click location are in the same room we can use a single path
-    --      local path = playerRoom:pathBetweenPoints(self.player.position, position)
-    --      if path ~= nil then
-    --        self.player:followPath(path)
-    --      end
-    --    else
-    --      -- Right now, assume the rooms are adjacent
-    --      local clickRoom = self.dungeon:roomAt(clickDest)
-    --
-    --      -- Get path from position to door
-    --      local playerDoor = playerRoom:getDoorTo(clickRoom.destination)
-    --      local path = playerRoom:pathBetweenPoints(self.player.position, playerDoor.center)
-    --
-    --      -- Get path from door to click
-    --      local clickDoor = clickRoom:getDoorTo(playerRoom.destination)
-    --      local secondPath = clickRoom:pathBetweenPoints(clickDoor.center, position)
-    --
-    --      if path ~= nil and secondPath ~= nil then
-    --        for i, location in ipairs(secondPath) do
-    --          table.insert(path, location)
-    --        end
-    --
-    --        self.player:followPath(path)
-    --      end
-    --
-    --    end
+    self.camera.focus = self.camera.focus - position
   end
 
+
+  if message == 'mouse_click' then
+    local position = data
+    local worldPoint = self.camera:screenToWorld(position)
+    Notifier:postMessage('world_click', worldPoint)
+  end
 end
 
 function scene:update(dt)
   stats:update(dt)
   console:update(dt)
+
+  self.gestureRecognizer:update(dt)
 
   self.logger:update(dt)
   self.logger:addLine('FPS: '..love.timer.getFPS())
@@ -142,8 +114,6 @@ function scene:update(dt)
   self.logger:addLine(string.format('Neighbors: %i', #self.dungeon:getNeighborhood(self.dungeon.currentRoom.destination)))
 
   self.dungeon:update(dt)
-
-  self.camera.focus = vector(self.dungeon.currentRoom.position.x + self.dungeon.currentRoom.size.x / 2, self.dungeon.currentRoom.position.y + self.dungeon.currentRoom.size.y / 2)
 
   self.player:update(dt)
 
