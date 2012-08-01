@@ -39,6 +39,10 @@ end
 
 
 function NotifierClass:postMessage(message, data)
+  if vars.lognotifications then
+    print(message .. ': ' .. tostring(data))
+  end
+
   if self.listeners[message] == nil then
     self.listeners[message] = {}
   end
