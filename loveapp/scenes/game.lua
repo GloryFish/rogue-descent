@@ -130,7 +130,8 @@ function scene:update(dt)
 end
 
 function scene:draw()
-  shaders.focus = self.camera:worldToScreen(self.player.position)
+  local focus = self.camera:worldToScreen(self.player.position)
+  shaders.focus = focus
   shaders:preDraw()
 
   sprites.main.batch:clear()
