@@ -78,10 +78,18 @@ function scene:receiveMessage(message, data)
     self.camera.focus = self.camera.focus - position
   end
 
-
   if message == 'mouse_click' then
     local position = data
     local worldPoint = self.camera:screenToWorld(position)
+
+    if self.dungeon:positionIsWalkable(worldPoint) then
+      local path = self.dungeon:pathBetweenPoints(self.player.position, worldPoint)
+      if path ~= nil then
+        self.player:followPath(path)
+      end
+    end
+
+    -- Pass this on to other interested game objects
     Notifier:postMessage('world_click', worldPoint)
   end
 end
