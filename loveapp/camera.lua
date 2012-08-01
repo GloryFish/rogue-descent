@@ -23,7 +23,9 @@ function Camera:initialize()
   self.offset = self.position
   self.focus = vector(love.graphics.getWidth() / 2, love.graphics.getHeight() / 2)
   self.deadzone = 100
-  
+
+  self.smoothMovement = true
+
   self.shakeDuration = 0
   self.shakeTime = 0
   self.shakeAmount = vector(0, 0)
@@ -45,8 +47,12 @@ end
 
 function Camera:update(dt)
   -- Move the camera if we are outside the deadzone
-  if self.position:dist(self.focus) > self.deadzone then
-    self.position = self.position - (self.position - self.focus) * dt * self.speed
+  if self.smoothMovement then
+    if self.position:dist(self.focus) > self.deadzone then
+      self.position = self.position - (self.position - self.focus) * dt * self.speed
+    end
+  else
+    self.position = self.focus
   end
 
   -- Clamp camera to bounds
@@ -74,13 +80,13 @@ function Camera:update(dt)
   -- Update the offset
   self.offset = vector(math.floor(self.position.x - love.graphics.getWidth() / 2),
                        math.floor(self.position.y - love.graphics.getHeight() / 2))
-  
+
   if self.shakeDuration > 0 then
     self.shakeAmount = vector(math.random() * self.shakeMax.x, math.random() * self.shakeMax.y) * (self.shakeDuration / self.shakeTime)
-    
+
     self.shakeDuration = self.shakeDuration - dt
   end
-  
+
 end
 
 function Camera:shake(duration, intesity)
@@ -100,12 +106,12 @@ function Camera:apply()
   -- love.graphics.translate(-love.graphics.getWidth() / 2 * self.zoom, -love.graphics.getHeight() / 2 * self.zoom)
   -- love.graphics.scale(self.zoom)
   -- love.graphics.translate(love.graphics.getWidth() / 2 * self.zoom, love.graphics.getHeight() / 2 * self.zoom)
-  -- 
+  --
   love.graphics.translate(-camPos.x, -camPos.y)
 
-  -- 
+  --
   -- love.graphics.translate(love.graphics.getWidth() / 2, love.graphics.getHeight() / 2)
-  
+
 end
 
 function Camera:unapply()

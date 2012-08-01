@@ -23,6 +23,7 @@ function scene:enter(pre)
 	self.player = Player()
 	self.camera = Camera()
 	self.camera.deadzone = 0
+  self.camera.smoothMovement = false
 	self.logger = Logger()
 
 	local roomCenter = vector(self.dungeon.currentRoom.size.x / 2, self.dungeon.currentRoom.size.y / 2)
