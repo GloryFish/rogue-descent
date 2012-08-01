@@ -34,7 +34,7 @@ function scene:load()
   -- Set up vars
   vars = {
     showpaths = false,
-    showstats = true,
+    showstats = false,
     roomfactype = 'random',
   }
 
