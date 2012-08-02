@@ -185,8 +185,10 @@ function Dungeon:setCurrentRoom(destination)
     local room = self:roomAt(destination)
     assert(instanceOf(Room, room), 'couldn\'t make a valid room')
 
+    self.currentRoom:setIsCurrent(false)
+    room:setIsCurrent(true)
+
     self.currentRoom = room
-    self.currentRoom:lockUpperDoors()
   end
 end
 

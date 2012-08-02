@@ -28,6 +28,7 @@ function Room:initialize(destination, position, size)
   self.size     = size
   self.center = position + size / 2
   self.visible = false
+  self.isCurrent = false
 
   self:generate()
 end
@@ -92,6 +93,34 @@ end
 
 function Room:update(dt)
 end
+
+function Room:setIsCurrent(current)
+  if self.isCurrent == current then
+    return
+  end
+
+  self.isCurrent = current
+
+  if self.isCurrent then
+    Notifier:listenForMessage('player_moved', self)
+  else
+    Notifier:stopListeningForMessage('player_moved', self)
+  end
+end
+
+function Room:receiveMessage(message, data)
+  if message == 'player_moved' then
+    local point = data
+    if point.x > self.position.x + 32 and
+     point.y > self.position.y + 33 and   -- Ensure that player moves past upper doors
+     point.x < self.position.x + self.size.x - 32 and
+     point.y < self.position.y + self.size.y - 32 then
+
+     self:lockUpperDoors()
+   end
+  end
+end
+
 
 function Room:getDoors()
   return self.doors

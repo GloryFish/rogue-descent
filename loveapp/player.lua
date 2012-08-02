@@ -15,7 +15,7 @@ Player = class('Player')
 
 function Player:initialize()
   self.spritesheet = sprites.main
-  
+
   self.position = vector(0, 0)
   self.offset = vector(-8, -16)
   self.scale = 2
@@ -36,12 +36,12 @@ end
 
 function Player:addPathNode(vec)
   assert(vector.isvector(vec), 'PathNode must be a vector')
-  
+
   table.insert(self.path, vec)
 end
 
 function Player:update(dt)
-  
+
   -- Follow path
   if self.path ~= nil and #self.path > 0 then
     local target = self.path[1]
@@ -57,6 +57,7 @@ function Player:update(dt)
 
     if movement:len() ~= 0 then
       self.position = self.position + (movement:normalized() * self.speed * dt)
+      Notifier:postMessage('player_moved', self.position)
     end
 
     local distance = target - self.position
@@ -65,7 +66,7 @@ function Player:update(dt)
       table.remove(self.path, 1)
     end
   end
-  
+
   -- Update offset
   local size = self:getCurrentSize()
   self.offset = vector(size.x / 2, 10) -- 10 is just right
@@ -79,8 +80,8 @@ function Player:getCurrentSize()
 end
 
 function Player:draw()
-  self.spritesheet.batch:addq(self.spritesheet.quads['player_man_standing'], 
-                              math.floor(self.position.x), 
+  self.spritesheet.batch:addq(self.spritesheet.quads['player_man_standing'],
+                              math.floor(self.position.x),
                               math.floor(self.position.y),
                               0,
                               self.scale * self.flip,
