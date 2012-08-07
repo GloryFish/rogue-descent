@@ -29,13 +29,13 @@ local commands = {
         delegate.player.position = vector(x, y)
       end
     end,
-    
+
   },
-  
+
   room = {
     description = 'Spawn a room at the specified destination',
     callback = function(delegate, ...)
-      if delegate == nil or 
+      if delegate == nil or
          delegate.dungeon == nil then
         return 'Error: dungeon not found'
 
@@ -52,7 +52,7 @@ local commands = {
           end
         end
         local totalTime = os.time() - startTime
-        
+
         return 'Spawned '..count..' rooms in '..tostring(totalTime)..' seconds'
       end
     end,
@@ -61,7 +61,7 @@ local commands = {
   objects = {
     description = 'Print a list of all objects in the current room',
     callback = function(delegate, ...)
-      if delegate == nil or 
+      if delegate == nil or
          delegate.dungeon == nil or
          delegate.dungeon.currentRoom == nil then
         return 'Error: player not found'
@@ -79,17 +79,17 @@ local commands = {
       end
     end,
   },
-  
+
   shader = {
     description = 'Set the current pixel shader effect',
     callback = function(delegate, ...)
       local name = arg[1]
-      
+
       if name == nil then
         current_effect = nil
         return 'No effect'
       end
-    
+
       if name == 'list' then
         local items = {}
         for shaderName, shader in pairs(shaders.shaders) do
@@ -103,24 +103,24 @@ local commands = {
         return 'Reloaded shaders'
       end
 
-      
+
       if not shaders:isEffect(name) then
         return 'Invalid effect: '..name
       end
-    
+
       current_effect = name
       return 'Effect: '..name
     end,
   },
-  
+
   varset = {
     description = 'Set game variables',
     callback = function(delegate, ...)
       local name = arg[1]
       local val = arg[2]
-      
+
       local translated = val
-      
+
       if val == 'true' then
         translated = true
       elseif val == 'false' then
@@ -128,7 +128,7 @@ local commands = {
       elseif tonumber(val) ~= nil then
         translated = tonumber(val)
       end
-      
+
       vars[name] = translated
       return 'set variable'
     end,
