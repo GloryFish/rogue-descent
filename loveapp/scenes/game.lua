@@ -28,16 +28,21 @@ function scene:enter(pre)
 	self.logger = Logger()
   self.gestureRecognizer = GestureRecognizer()
 
-	local roomCenter = vector(self.dungeon.currentRoom.size.x / 2, self.dungeon.currentRoom.size.y / 2)
-	self.player.position = vector(336, 272)
-	self.camera.position = roomCenter
-	self.camera.focus = roomCenter
-
   Notifier:listenForMessage('door_unlocked', self)
   Notifier:listenForMessage('door_locked', self)
 	Notifier:listenForMessage('mouse_up', self)
   Notifier:listenForMessage('mouse_drag', self)
   Notifier:listenForMessage('mouse_click', self)
+
+  self:reset()
+end
+function scene:reset()
+  self.dungeon:reset()
+
+  local roomCenter = vector(self.dungeon.currentRoom.size.x / 2, self.dungeon.currentRoom.size.y / 2)
+  self.player.position = vector(336, 272)
+  self.camera.position = roomCenter
+  self.camera.focus = roomCenter
 end
 
 function scene:keypressed(key, unicode)

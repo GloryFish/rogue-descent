@@ -159,6 +159,14 @@ local commands = {
       return 'Memory used: '..tostring(collectgarbage('count'))..'kb'
     end,
   },
+
+  reset = {
+    description = 'Reset the dungeon',
+    callback = function(delegate, ...)
+      delegate:reset()
+      return 'Reset dungeon'
+    end,
+  },
 }
 
 return commands
