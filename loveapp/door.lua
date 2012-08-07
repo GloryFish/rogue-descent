@@ -30,7 +30,9 @@ function Door:initialize(position, room, destination)
   self.destination = destination
   self.locked = true
   self.center = self.rectangle.position + vector(16, 16)
-  Notifier:listenForMessage('world_click', self)
+
+  -- Uncomment this to allow doors to be clicked open
+  -- Notifier:listenForMessage('world_click', self)
 end
 
 function Door:receiveMessage(message, position)
