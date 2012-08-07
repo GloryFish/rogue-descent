@@ -236,11 +236,6 @@ function RoomTiled:lockDoorTo(destination)
 
   if not door.locked then
     door.locked = true
-
-    -- RoomTiled needs to set the door tile as walkable area it is unlocked
-    local coords = self:toTileCoords(door.center)
-    self.walkable[coords.x][coords.y] = false
-
     Notifier:postMessage('door_locked', door)
   end
 end

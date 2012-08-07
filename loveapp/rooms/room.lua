@@ -222,8 +222,9 @@ function Room:positionIsWalkable(point)
      return true
   end
 
+  -- Doors are always walkable
   for i, door in ipairs(self.doors) do
-    if not door.locked and door.rectangle:contains(point) then
+    if door.rectangle:contains(point) then
       return true
     end
   end
