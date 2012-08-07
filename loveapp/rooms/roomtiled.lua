@@ -29,7 +29,6 @@ function RoomTiled:initialize(destination, position, size)
   self.position = position
   self.size     = size
   self.center = position + size / 2
-  self.visible = false
 
   Notifier:listenForMessage('player_left_room', self)
   Notifier:listenForMessage('player_entered_room', self)
@@ -140,11 +139,6 @@ function RoomTiled:generate()
   for index, object in pairs(self.objects) do
     object.position = vector(x + (object.size.x / 2), self.position.y + 285)
     x = x + object.size.x + padding
-  end
-
-  -- Set visibility
-  if self.level == 1 then
-    self.visible = true
   end
 end
 
@@ -270,11 +264,7 @@ function RoomTiled:unlockDoorTo(destination)
 end
 
 function RoomTiled:draw()
-  if not self.visible then
-    return
-  end
-
-  -- Darw background and scenery tile layers
+  -- Draw background and scenery tile layers
   local tiles = self.tiles
   for x = 1, #tiles do
     for y = 1, #tiles[x] do
@@ -317,6 +307,9 @@ function RoomTiled:draw()
   -- Draw objects
   for index, object in ipairs(self.objects) do
     object:draw()
+  end
+
+  if self.state == 'unexplored' then
   end
 
   -- Draw pathfinding information

@@ -78,7 +78,6 @@ function scene:receiveMessage(message, data)
 
     -- when a door is unlocked, spawn its destination room and unlock the related door there
     local destinationRoom = self.dungeon:roomAt(door.destination)
-    destinationRoom.visible = true
     destinationRoom:unlockDoorTo(door.room.destination)
   end
 

@@ -27,8 +27,9 @@ function Room:initialize(destination, position, size)
   self.position = position
   self.size     = size
   self.center = position + size / 2
-  self.visible = false
   self.isCurrent = false
+  self.state = 'unexplored'
+
 
   Notifier:listenForMessage('player_left_room', self)
   Notifier:listenForMessage('player_entered_room', self)
@@ -63,10 +64,6 @@ function Room:generate()
   pos = vector(self.position.x + self.size.x - 32 * 5, self.position.y + self.size.y - 32)
   table.insert(self.doors, Door(pos, self, Destination(self.destination.level + 1, self.destination.index + 1)))
 
-  -- Set visibility
-  if self.level == 1 then
-    self.visible = true
-  end
 end
 
 -- Returns true if the room contains the provided world point
@@ -130,6 +127,10 @@ function Room:receiveMessage(message, data)
       print('room received own message: player_entered_room')
       self:lockUpperDoors()
       self:unlockLowerDoors()
+
+      if self.state == 'unexplored' then
+        self.state = 'visited'
+      end
     end
   end
 
@@ -233,10 +234,6 @@ end
 
 
 function Room:draw()
-  if not self.visible then
-    return
-  end
-
   colors.gray:set()
   love.graphics.rectangle('fill', self.position.x, self.position.y, self.size.x, self.size.y)
 
@@ -245,5 +242,8 @@ function Room:draw()
 
   for i, door in ipairs(self.doors) do
     door:draw()
+  end
+
+  if self.state == 'unexplored' then
   end
 end

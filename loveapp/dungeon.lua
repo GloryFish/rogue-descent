@@ -228,7 +228,6 @@ function Dungeon:roomAt(destination)
   if room == nil then
     local position = self:positionForRoomAtDestination(destination)
     room = self.roomFactory:buildRoom(destination, position, self.roomSize)
-    room.visible = 1
     self.rooms[destination.id] = room
   end
 
