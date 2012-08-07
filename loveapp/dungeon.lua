@@ -33,6 +33,8 @@ function Dungeon:reset()
   self.rooms[startingRoom.destination.id] = startingRoom
   self.currentRoom = startingRoom
 
+  -- This is a vector which indicates where an observer is currently looking, may not be the player's position
+  -- Used for determining which rooms in the dungeon to render and update
   self.focus = startingRoom.position
 end
 

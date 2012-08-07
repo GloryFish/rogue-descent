@@ -33,6 +33,7 @@ function scene:enter(pre)
 	Notifier:listenForMessage('mouse_up', self)
   Notifier:listenForMessage('mouse_drag', self)
   Notifier:listenForMessage('mouse_click', self)
+  Notifier:listenForMessage('player_entered_room', self)
 
   self:reset()
 end
@@ -91,6 +92,7 @@ function scene:receiveMessage(message, data)
 
   if message == 'mouse_drag' then
     local position = data
+    self.camera.smoothMovement = false
     self.camera.focus = self.camera.focus - position
   end
 
@@ -107,8 +109,14 @@ function scene:receiveMessage(message, data)
       -- Pass this on to other interested game objects
       Notifier:postMessage('world_click', worldPoint)
     end
-
   end
+
+  if message == 'player_entered_room' then
+    local room = data
+    self.camera.smoothMovement = true
+    self.camera.focus = vector(room.position.x + room.size.x / 2, room.position.y + room.size.y / 2)
+  end
+
 end
 
 function scene:update(dt)
