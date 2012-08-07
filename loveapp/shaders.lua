@@ -81,6 +81,8 @@ function Shaders:set(name)
       elseif extern == 'focus' then
         shader.effect:send('focus', {self.focus:unpack()})
 
+      elseif extern == 'saturationMap' then
+        shader.effect:send('saturationMap', self.saturation_map)
       end
     end
 
