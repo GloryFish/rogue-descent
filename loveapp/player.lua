@@ -56,8 +56,15 @@ function Player:update(dt)
     end
 
     if movement:len() ~= 0 then
+      local positions = {
+        previous = self.position:clone()
+      }
+
       self.position = self.position + (movement:normalized() * self.speed * dt)
-      Notifier:postMessage('player_moved', self.position)
+
+      positions.current = self.position
+
+      Notifier:postMessage('player_moved', positions)
     end
 
     local distance = target - self.position

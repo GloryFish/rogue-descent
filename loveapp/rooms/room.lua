@@ -30,6 +30,9 @@ function Room:initialize(destination, position, size)
   self.visible = false
   self.isCurrent = false
 
+  Notifier:listenForMessage('player_left_room', self)
+  Notifier:listenForMessage('player_entered_room', self)
+
   self:generate()
 end
 
@@ -74,7 +77,17 @@ function Room:containsPoint(point)
          point.x <= self.position.x + self.size.x and
          point.y >= self.position.y and
          point.y <= self.position.y + self.size.y
+end
 
+-- Returns true if the point is within the inner bounds of the room. This means the point is considered to be
+-- past any doorways or other obstacles. Used primarily to determine when a player has committed to entering the room.
+function Room:innerBoundsContainsPoint(point)
+  if point.x > self.position.x + 32 and
+    point.y > self.position.y + 33 and   -- Ensure that player moves past upper doors
+    point.x < self.position.x + self.size.x - 32 and
+    point.y < self.position.y + self.size.y - 32 then
+    return true
+  end
 end
 
 -- Returns a table of vectors() between two world points within
@@ -109,15 +122,24 @@ function Room:setIsCurrent(current)
 end
 
 function Room:receiveMessage(message, data)
-  if message == 'player_moved' then
-    local point = data
-    if point.x > self.position.x + 32 and
-     point.y > self.position.y + 33 and   -- Ensure that player moves past upper doors
-     point.x < self.position.x + self.size.x - 32 and
-     point.y < self.position.y + self.size.y - 32 then
+  if message == 'player_entered_room' then
+    print('self: '..tostring(self.destination))
+    print('data: '..tostring(data.destination))
 
-     self:lockUpperDoors()
-   end
+    if self.destination == data.destination then
+      print('room received own message: player_entered_room')
+      self:lockUpperDoors()
+      self:unlockLowerDoors()
+    end
+  end
+
+  if message == 'player_left_room' then
+    print('self: '..tostring(self.destination))
+    print('data: '..tostring(data.destination))
+
+    if self.destination == data.destination then
+      self:lockLowerDoors()
+    end
   end
 end
 
@@ -174,6 +196,22 @@ function Room:lockUpperDoors()
     local dest = Destination(self.destination.level - 1, self.destination.index)
     self:lockDoorTo(dest)
   end
+end
+
+function Room:lockLowerDoors()
+  -- ll
+  self:lockDoorTo(Destination(self.destination.level + 1, self.destination.index))
+
+  -- lr
+  self:lockDoorTo(Destination(self.destination.level + 1, self.destination.index + 1))
+end
+
+function Room:unlockLowerDoors()
+  -- ll
+  self:unlockDoorTo(Destination(self.destination.level + 1, self.destination.index))
+
+  -- lr
+  self:unlockDoorTo(Destination(self.destination.level + 1, self.destination.index + 1))
 end
 
 function Room:positionIsWalkable(point)

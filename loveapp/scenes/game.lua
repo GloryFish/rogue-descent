@@ -36,6 +36,7 @@ function scene:enter(pre)
 
   self:reset()
 end
+
 function scene:reset()
   self.dungeon:reset()
 
@@ -43,6 +44,7 @@ function scene:reset()
   self.player.position = vector(336, 272)
   self.camera.position = roomCenter
   self.camera.focus = roomCenter
+  Notifier:postMessage('player_entered_room', self.dungeon.currentRoom)
 end
 
 function scene:keypressed(key, unicode)

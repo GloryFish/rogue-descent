@@ -10,6 +10,7 @@ require 'middleclass'
 require 'vector'
 require 'roomfactory'
 require 'astar'
+require 'notifier'
 
 Dungeon = class('Dungeon')
 
@@ -17,6 +18,9 @@ function Dungeon:initialize()
   self.astar = AStar(self)
 
   self:reset()
+
+  Notifier:listenForMessage('player_moved', self)
+  Notifier:listenForMessage('player_entered_room', self)
 end
 
 function Dungeon:reset()
@@ -30,6 +34,29 @@ function Dungeon:reset()
   self.currentRoom = startingRoom
 
   self.focus = startingRoom.position
+end
+
+function Dungeon:receiveMessage(message, data)
+  if message == 'player_moved' then
+    local positions = data
+    local prevDest = self:destinationForPosition(positions.previous)
+    local currDest = self:destinationForPosition(positions.current)
+
+    if prevDest ~= currDest then
+      Notifier:postMessage('player_left_room', self:roomAt(prevDest))
+      Notifier:postMessage('player_entered_room', self:roomAt(currDest))
+    end
+  end
+
+  if message == 'player_entered_room' then
+    local room = data
+
+    local descendants = self:getDestinationDescendants(room.destination, 2)
+
+    for i, dest in ipairs(descendants) do
+      self:roomAt(dest)
+    end
+  end
 end
 
 function Dungeon:idForLevelAndIndex(level, index)
@@ -199,6 +226,7 @@ function Dungeon:roomAt(destination)
   if room == nil then
     local position = self:positionForRoomAtDestination(destination)
     room = self.roomFactory:buildRoom(destination, position, self.roomSize)
+    room.visible = 1
     self.rooms[destination.id] = room
   end
 
@@ -238,6 +266,26 @@ function Dungeon:getNeighborhood(destination, spread)
  return neighborhood
 end
 
+-- Gives a set of destinations (which may or may not have rooms) which are direct descendants of a given destination
+function Dungeon:getDestinationDescendants(destination, depth)
+  assert(instanceOf(Destination, destination), 'destination must be a Destination object')
+
+  if depth == nil then
+    depth = 1
+  end
+  assert(depth > 0, 'depth must be greater than 0')
+
+  local destinations = {}
+
+  for level = destination.level + 1, destination.level + depth do
+    for index = destination.index, destination.index + level - destination.level do
+      local destination = Destination(level, index)
+      table.insert(destinations, destination)
+    end
+  end
+
+  return destinations
+end
 
 function Dungeon:draw()
   local focusDestination = self:destinationForPosition(self.focus)

@@ -31,6 +31,9 @@ function RoomTiled:initialize(destination, position, size)
   self.center = position + size / 2
   self.visible = false
 
+  Notifier:listenForMessage('player_left_room', self)
+  Notifier:listenForMessage('player_entered_room', self)
+
   -- RoomTiled specific initialization
   self.spritesheet = sprites.main
 
