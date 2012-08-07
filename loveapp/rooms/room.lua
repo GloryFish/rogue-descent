@@ -30,7 +30,6 @@ function Room:initialize(destination, position, size)
   self.isCurrent = false
   self.state = 'unexplored'
 
-
   Notifier:listenForMessage('player_left_room', self)
   Notifier:listenForMessage('player_entered_room', self)
 
@@ -233,7 +232,15 @@ function Room:positionIsWalkable(point)
 end
 
 
-function Room:draw()
+function Room:draw(mode)
+  if mode == 'saturation' then
+    if self.state == 'visited' then
+      colors.white:set()
+      love.graphics.rectangle('fill', self.position.x, self.position.y, self.size.x, self.size.y)
+    end
+    return
+  end
+
   colors.gray:set()
   love.graphics.rectangle('fill', self.position.x, self.position.y, self.size.x, self.size.y)
 

@@ -57,6 +57,10 @@ function scene:keypressed(key, unicode)
     self:quit()
   end
 
+  if key == 's' then
+    self.drawSaturation = not self.drawSaturation
+  end
+
   if key == ' ' then
     self.camera:shake(0.5, 0.5)
   end
@@ -154,33 +158,57 @@ function scene:update(dt)
 end
 
 function scene:draw()
-  local focus = self.camera:worldToScreen(self.player.position)
-  shaders.focus = focus
-  shaders:preDraw()
+  -- Draw saturation map
+  love.graphics.setCanvas(canvases.saturation)
 
-  sprites.main.batch:clear()
+  canvases.saturation:clear()
 
   self.camera:apply()
 
-  self.dungeon:draw()
-  self.player:draw()
-
-  love.graphics.draw(sprites.main.batch)
-
-  if vars.showpaths then
-    -- Draw player path
-    colors.yellow:set()
-    for i, location in ipairs(self.player.path) do
-      love.graphics.circle('fill', location.x, location.y, 10)
-    end
-    colors.white:set()
-
-  end
-
+  self.dungeon:draw('saturation')
 
   self.camera:unapply()
 
-  shaders:postDraw(current_effect)
+  love.graphics.setCanvas()
+
+  if self.drawSaturation then
+
+    love.graphics.draw(canvases.saturation, 0, 0)
+    love.graphics.print('Saturation map', 10, 10)
+
+  else
+    local focus = self.camera:worldToScreen(self.player.position)
+    shaders.focus = focus
+    shaders.saturation_map = canvases.saturation
+    shaders:preDraw()
+
+    sprites.main.batch:clear()
+
+    self.camera:apply()
+
+    self.dungeon:draw()
+    self.player:draw()
+
+    love.graphics.draw(sprites.main.batch)
+
+    if vars.showpaths then
+      -- Draw player path
+      colors.yellow:set()
+      for i, location in ipairs(self.player.path) do
+        love.graphics.circle('fill', location.x, location.y, 10)
+      end
+      colors.white:set()
+
+    end
+
+
+    self.camera:unapply()
+
+    shaders:postDraw(current_effect)
+  end
+
+
+
 
   self.logger:draw()
   stats:draw()

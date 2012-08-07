@@ -288,7 +288,7 @@ function Dungeon:getDestinationDescendants(destination, depth)
   return destinations
 end
 
-function Dungeon:draw()
+function Dungeon:draw(mode)
   local focusDestination = self:destinationForPosition(self.focus)
   if not focusDestination then
     print('invalid focus destination for: ' .. tostring(self.focus))
@@ -296,7 +296,7 @@ function Dungeon:draw()
   end
 
   for index, destination in ipairs(self:getNeighborhood(focusDestination, 2)) do
-    self.rooms[destination.id]:draw()
+    self.rooms[destination.id]:draw(mode)
   end
 end
 

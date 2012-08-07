@@ -29,6 +29,7 @@ function RoomTiled:initialize(destination, position, size)
   self.position = position
   self.size     = size
   self.center = position + size / 2
+  self.state = 'unexplored'
 
   Notifier:listenForMessage('player_left_room', self)
   Notifier:listenForMessage('player_entered_room', self)
@@ -263,7 +264,15 @@ function RoomTiled:unlockDoorTo(destination)
   end
 end
 
-function RoomTiled:draw()
+function RoomTiled:draw(mode)
+  if mode == 'saturation' then
+    if self.state == 'visited' then
+      colors.white:set()
+      love.graphics.rectangle('fill', self.position.x, self.position.y, self.size.x, self.size.y)
+    end
+    return
+  end
+
   -- Draw background and scenery tile layers
   local tiles = self.tiles
   for x = 1, #tiles do

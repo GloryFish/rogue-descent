@@ -45,6 +45,11 @@ function scene:load()
     small          = love.graphics.newFont('resources/fonts/silkscreen.ttf', 20),
   }
 
+  -- Prepare canvases
+  canvases = {
+    saturation = love.graphics.newCanvas()
+  }
+
   -- Prepare spritesheet
   sprites = require 'spritesheets'
 
@@ -57,7 +62,7 @@ function scene:load()
   -- Load effects
   shaders = require 'shaders'
 
-  current_effect = nil
+  current_effect = 'vision'
 
   local totalTime = os.time() - startTime
   print('Loaded in '..tostring(totalTime)..' seconds')
