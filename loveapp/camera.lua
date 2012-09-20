@@ -8,6 +8,7 @@
 
 require 'middleclass'
 require 'vector'
+require 'noise'
 
 Camera = class('Camera')
 
@@ -26,6 +27,14 @@ function Camera:initialize()
 
   self.smoothMovement = true
 
+  self.handheld = true
+  self.handheldAmount = vector(0, 0)
+  self.handheldNoise = {
+    horizontal = Noise:perlin(1000, 1),
+    vertical   = Noise:perlin(1000, 2),
+  }
+  self.handheldMax = vector(15, 15)
+
   self.shakeDuration = 0
   self.shakeTime = 0
   self.shakeAmount = vector(0, 0)
@@ -35,6 +44,9 @@ function Camera:initialize()
   self.speed = 1.5 -- 1 is normal speed
 
   self.zoom = 1
+
+  self.elapsed = 0
+
 end
 
 function Camera:worldToScreen(position)
@@ -46,6 +58,8 @@ function Camera:screenToWorld(position)
 end
 
 function Camera:update(dt)
+  self.elapsed = self.elapsed + dt
+
   -- Move the camera if we are outside the deadzone
   if self.smoothMovement then
     if self.position:dist(self.focus) > self.deadzone then
@@ -87,6 +101,15 @@ function Camera:update(dt)
     self.shakeDuration = self.shakeDuration - dt
   end
 
+  if self.handheld then
+    -- Sample horizontal and vertical perturbation amounts
+    local index = math.ceil((0.1 * self.elapsed * 60) % 1000) -- 1000 samples at 10 samples per second gives us 100 seconds of unique movement
+
+    self.handheldAmount = vector(math.floor(self.handheldNoise.horizontal[index] * self.handheldMax.x), math.floor(self.handheldNoise.vertical[index] * self.handheldMax.y))
+  else
+    self.handheldAmount = vector(0 , 0)
+  end
+
 end
 
 function Camera:shake(duration, intesity)
@@ -102,7 +125,7 @@ end
 function Camera:apply()
   love.graphics.push()
 
-  local camPos = self.offset + self.shakeAmount
+  local camPos = self.offset + self.shakeAmount + self.handheldAmount
   -- love.graphics.translate(-love.graphics.getWidth() / 2 * self.zoom, -love.graphics.getHeight() / 2 * self.zoom)
   -- love.graphics.scale(self.zoom)
   -- love.graphics.translate(love.graphics.getWidth() / 2 * self.zoom, love.graphics.getHeight() / 2 * self.zoom)

@@ -9,6 +9,7 @@
 require 'middleclass'
 require 'vector'
 require 'colors'
+require 'noise'
 
 local Stats = class('Stats')
 
@@ -26,6 +27,9 @@ function Stats:initialize()
   self.xWidth = self.size.x / self.maxsize
 
   self.maxMemory = 0
+
+  self.perlin = Noise:perlin(50, 1)
+  self.maxPerlin = 0
 end
 
 function Stats:update(dt)
@@ -58,13 +62,13 @@ function Stats:draw()
 
   local points = {}
 
+  -- Draw memory graph
   for i = 1, #self.memory do
     local currentMemory = self.memory[i]
     if currentMemory == nil then
       break
     end
 
-    -- Draw memory graph
     -- Calculate local coordinates of graph with positiive Y moving up
     local currentX = math.floor((i - 1) * self.xWidth)
     local currentY = math.floor((currentMemory / self.maxMemory) * self.size.y)
@@ -83,6 +87,35 @@ function Stats:draw()
     colors.white:set()
     love.graphics.print('memory: '..tostring(self.maxMemory), self.position.x + 10, self.position.y + self.size.y - 20)
   end
+
+  -- Draw perlin graph
+  points = {}
+
+  for i = 1, #self.perlin do
+    local currentPerlin = self.perlin[i]
+    if currentPerlin == nil then
+      break
+    end
+
+    -- Draw memory graph
+    -- Calculate local coordinates of graph with positiive Y moving up
+    local currentX = math.floor((i - 1) * self.xWidth)
+    local currentY = math.floor((currentPerlin + 0.5)* self.size.y)
+
+    -- Transform to screen coordinates
+    currentX = self.position.x + currentX + self.size.x - #self.memory * self.xWidth
+    currentY = self.position.y + self.size.y - currentY
+
+    table.insert(points, currentX)
+    table.insert(points, currentY)
+  end
+
+  if #points >= 4 then
+    colors.green:set()
+    love.graphics.line(points)
+    colors.white:set()
+  end
+
 end
 
 return Stats()

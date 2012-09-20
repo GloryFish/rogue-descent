@@ -11,11 +11,16 @@ require 'vector'
 require 'roomfactory'
 require 'astar'
 require 'notifier'
+require 'random'
 
 Dungeon = class('Dungeon')
 
 function Dungeon:initialize()
   self.astar = AStar(self)
+
+  local seed = 0
+
+  self.random = twister(seed)
 
   self:reset()
 
@@ -26,7 +31,7 @@ end
 function Dungeon:reset()
   self.rooms = {}
   self.roomSize = vector(640, 320)
-  self.roomFactory = RoomFactory('random')
+  self.roomFactory = RoomFactory('random', self.random)
 
   local startingRoom = self.roomFactory:buildRoom(Destination(1, 1), vector(0, 0), self.roomSize)
 
